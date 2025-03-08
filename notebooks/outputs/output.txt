@@ -1,0 +1,239 @@
+CONTACTO 
+luis.gustavo.takano@gmail.com 
+811-504-87-63 
+www.linkedin.com/in/luis-gustavo-takano-de-la-cruz-27346319b/ 
+LUIS GUSTAVO TAKANO DE LA CRUZ 
+FLIGHT DYNAMICS & AVIONICS ENGINEER 
+SOFT SKILLS 
+Problem solving 
+         Efficient time management 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  EDUCATION 
+Independent and self-directed 
+Proactive 
+Goal-oriented 
+Teamwork 
+PROFESSIONAL SKILLS 
+Electronics 
+Aerodynamics 
+2020 - 2023 
+ 
+2017 - 2019 
+ 
+ 
+2010 - 2014 
+PHD IN AERONAUTICAL ENGINEERING 
+Center of investigation and innovation in aeronautical engineering, UANL 
+ 
+MASTER’S DEGREE IN AERONAUTICAL 
+Center of investigation and innovation in aeronautical engineering, UANL 
+BACHELOR’S DEGREE IN ELECTRONICS AND AUTOMATION 
+ENGINEERING 
+Universidad Autonóma de Nuevo León (UANL), 
+Hydraulics 
+Flight dynamics 
+Control systems 
+Statistical modeling 
+Applied Statistics 
+Transient analysis 
+SOFTWARE 
+Matlab 
+Simulink 
+Python 
+LabView 
+Arduino IDE 
+C++ 
+Solidwork 
+LENGUAGES 
+Spanish (Native) 
+English Proficiency: Reading and 
+Writing- Intermediate. Speaking 
+and Listening- Intermediate 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Research Fellow: 
+      CENTER OF INVESTIGATION AND INNOVATION IN AERONAUTICAL ENGINEERING 
+      2020 - 2023 
+PROFESSIONAL ACCOMPLISHMENTS 
+• 
+Led the development and application of operability models, including control algorithms, 
+to enhance performance and system integration for avionic and aeroderivative systems. 
+ 
+• 
+Programmed and integrated flight control systems and communication protocols, focusing 
+on high-performance standards for hardware-in-the-loop and software-in-the-loop tests. 
+ 
+• 
+Applied statistical optimization and data analysis techniques for transient system 
+identification, aligning with model validation and real-world data integration practices. 
+ 
+• 
+Designed and implemented multivariate architectures for embedded control systems, 
+adhering to standards such as MIL-STD-1797A and NATO (RTO TR-029) regulations. 
+ 
+• 
+Directed model-based control design, ensuring compliance with best practices in control 
+systems design, including thrust command optimization and flight performance analysis. 
+ 
+• 
+Developed tools and frameworks for performance evaluation using programming utilities 
+like Labview to enhance model analysis and streamline development processes. 
+Professor 
+UNIVERSIDAD DE MONTERREY (UDEM) 
+2022 - present 
+ 
+• 
+Introduced practical statistical methods for data analysis, supporting estimation, 
+decision-making, and process forecasting. 
+ 
+• 
+Guided students in understanding data-driven algorithms using matrix operations, vector 
+spaces, and eigenvalues. 
+ 
+• 
+Directed student projects applying scientific methodologies to solve complex engineering 
+challenges with real-world impact. 
+• 
+Modeled dynamic systems for UAVs, applying multivariate statistical methods for 
+anomaly detection, performance optimization, and operational analysis. 
+ 
+• 
+Published research on multivariate statistics for anomaly detection, applying these 
+techniques to turbojet performance analysis, leading to improved model validation and 
+system reliability. 
+ 
+• 
+Integrated model validation techniques to align models with real-world operational 
+data, ensuring accuracy in predicting system performance. 
+ 
+• 
+Employed status-matching models to compare field data with theoretical predictions, 
+identifying and correcting discrepancies to refine model accuracy. 
+ 
+• 
+Adjusted and optimized operability models for gas turbine systems, considering 
+emissions, fuel flexibility, and control aspects, to reflect operational realities and 
+improve system performance.
+EXPERIENCE 
+
+        Research Assistant 
+CENTER OF INVESTIGATION AND INNOVATION IN 
+AERONAUTICAL ENGINEERING 
+2017 – 2019 
+ 
+Electronics engineer 
+CARTOLITO S.A DE C.V 
+2015 - 2017 
+• Corrective and preventive maintenance work on graphic arts 
+machines, fault detection, repair of electronic boards, electrical 
+installations, actuators, electronic relay. Use of temperature, 
+mechanical sensors, inductive sensors, ultrasonic, vision sensors. 
+• Support and supervised a team of mechanical personnel 
+• Use and programming of PLC's: Siemens and Mitsubishi, 
+maintenance of AC and DC motors, installation of drives, 
+frequency inverters and temperature controllers. 
+Social service 
+INSTITUTE OF BIOTECHNOLOGY 
+2014 - 2014 
+• Maintenance of bioprocess units, bioreactors, centrifuges, 
+autoclaves, etc. 
+• Maintenance of data acquisition card, sensors and bioprocess 
+unit controllers. 
+Internship 
+COMISION FEDERAL DE ELECTRICIDAD (CFE) 
+2013 - 2013 
+• Preparation of professional practices in the Federal Electricity 
+Commission in the planning department. Used AutoCAD of the 
+medium voltage circuits of the substations in the northern area of 
+the MTY. 
+• Capture of electrical energy expense, power factor, load factor, 
+etc. of the north zone substations 
+CERTIFICATIONS 
+Project Management & Agile Fundamentals (2024) 
+Yellow Belt (Lean Six Sigma) (2023) 
+LabxVIEW Associate Developers (CLAD) (2017-2019) 
+WORSHOPS 
+ Speaker at Faculty of Mechanical and Electrical Engineering: 
+"Aircraft Flight Dynamics" (July 6th, 2022) 
+ Speaker at Faculty of Mechanical and Electrical Engineering: 
+"Aircraft Flight Dynamics" (June 28th, 2021) 
+ Performance of a linear controller for robust stability in a non-
+linear model of aircraft pitch., L. Takano, J. F. Villarreal, L. A. 
+Amézquita, 2nd International Conference on Aeronautics, 
+Nuevo León, México, 2018 
+ Designs of and interface based on Matlab-Simulink for the 
+navigation of a quadcopter., L. Takano, L. Feria, L. Cabriales, 
+ Escobar, O. García, 2nd International Conference on 
+Aeronautics, Nuevo León, México, 2018 
+ 
+PUBLICATIONS AND INDUSTRY 
+PARTNERSHIPS 
+Formation control as a classical decentralized multivariable 
+problem: Performance, robustness, cross-coupling and 
+perturbation rejection. 
+Luis G. Takano De La Cruz, Luis Amezquita-Brooks, Octavio 
+Garcia-Salazar, Francisco 
+Villarreal-Valderrama, Carlos 
+Santana- Delgado, 
+Diana Hernandez-Alcantara. Journal of 
+the Franklin Institute (2023), ISSN 0016-0032, 
+https://doi.org/10.1016/j.jfranklin.2023.10.030 
+ 
+Multivariate statistics for anomaly detection: application in 
+a turbojet 
+Salma Salazar-Martínez, Luis Takano De La Cruz, I. Loboda, 
+Francisco Villarreal-Valderrama, Diana Hernandez-Alcantara, 
+Luis Amézquita-Brooks, journal DYNA, 2023 
+https://doi.org/10.6036/10921 
+ 
+Design of an aircraft pitch control experimental test bench 
+F. Villarreal, L. Takano, U. Alvarez, L. Amezquita, E. Liceaga 
+2018 
+IEEE 
+International Autumn Meeting on 
+Power, 
+Electronics and Computing (ROPEC), Ixtapa, Mexico, 2018 
+doi: 10.1109/ROPEC.2018.8661430 
+ 
+An integral approach for aircraft pitch control and 
+instrumentation in a wind-tunnel 
+Villarreal Valderrama, J.F., Takano, L., Liceaga-Castro, E., 
+Hernandez-Alcantara, D., Zambrano-Robledo, P.D.C. and 
+Amezquita-Brooks, L. (2020), Aircraft Engineering and 
+Aerospace Technology 
+https://doi.org/10.1108/AEAT-10-2019-0193 
+• Designed MIMO control systems for UAVs, focusing on 
+performance, disturbance rejection, and operability within 
+aviation standards (FAR 23/25). 
+• Conducted software-in-the-loop (SIL) and hardware-in-the-loop 
+(HIL) tests to validate flight controls and optimize operability 
+models before real-world implementation. 
+• Development of the algorithms of synchronization for the 
+dynamic coupling of multi-agent system 
+• Aircraft algorithms design for tracking and disturbance rejection in 
+unmanned aerial vehicles in lateral axis through SIL. 
+• Hardware owner of brushless motor, electronic speed control 
+(ESC), accelerometers and wind tunnel tests 
+

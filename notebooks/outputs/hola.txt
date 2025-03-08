@@ -1,0 +1,688 @@
+[00:00:00.000 --> 00:00:02.000] Hablante_235:  Vamos a hacer este portate que tenemos aquí, mirad.
+
+[00:00:02.000 --> 00:00:04.480] Hablante_273:  Esta es la serie Prestige de MSI.
+
+[00:00:04.480 --> 00:00:07.480] Hablante_202:  Me gusta pequeñito, eh. 14 muy高.
+
+[00:00:07.480 --> 00:00:11.160] Hablante_222:  Ahí vamos a hacer las especificaciones, creo que me interesaba ver.
+
+[00:00:11.160 --> 00:00:13.960] Hablante_280:  Y, vale, yo, una 40-60 de 8 gigas.
+
+[00:00:13.960 --> 00:00:16.880] Hablante_214:  Cuentas 68 gigas, intelectura 7.
+
+[00:00:16.880 --> 00:00:18.720] Hablante_154:  Y, vale, pues ahora le echaremos un ojo.
+
+[00:00:18.720 --> 00:00:21.400] Hablante_29:  Es un portátil, relativamente firmo, no sé cuánto de empezar,
+
+[00:00:21.400 --> 00:00:24.280] Hablante_29:  pero no parece que sea tampoco demasiado pesado.
+
+[00:00:24.280 --> 00:00:26.320] Hablante_7:  Y a mí, lo que me estamos hablando, tío, es que últimamente
+
+[00:00:26.320 --> 00:00:28.120] Hablante_206:  estén señores de estos equipos que no son enormes.
+
+[00:00:28.120 --> 00:00:31.320] Hablante_16:  Son relativamente pequeños, relativamente fáciles de transportar,
+
+[00:00:31.320 --> 00:00:35.000] Hablante_3:  no pesan demasiado, pero aún así tiene una gráfica dedicada.
+
+[00:00:35.000 --> 00:00:38.440] Hablante_232:  Pero esto para quienes, o sea, ahora quién va a invocado este portátil?
+
+[00:00:38.440 --> 00:00:43.160] Hablante_13:  Pues por ejemplo, alguien que quiera un portátil para, por ejemplo, trabajar,
+
+[00:00:43.160 --> 00:00:47.040] Hablante_26:  editar vídeo, editar fotos, Photoshop, incluso puedes hacer algunas cosas
+
+[00:00:47.040 --> 00:00:50.440] Hablante_4:  de inteligencia de TV, con 8 gigas, puedes hacer muchas cosas de IA.
+
+[00:00:50.440 --> 00:00:54.200] Hablante_35:  Pero aparte de eso, pues da Vinci Resolve, Adobe Premiere,
+
+[00:00:54.200 --> 00:00:55.640] Hablante_218:  o sea, hay un montón de programas que...
+
+[00:00:55.680 --> 00:00:57.680] Hablante_207:  Está crecido todo eso lo tira, pero...
+
+[00:00:57.680 --> 00:00:59.240] Hablante_197:  Incluso Blender, por ejemplo.
+
+[00:00:59.240 --> 00:01:01.320] Hablante_225:  Tiene aquí, como puedes ver, Intel Ultra 7,
+
+[00:01:01.320 --> 00:01:03.080] Hablante_203:  estos son los nuevos procesadores de Intel,
+
+[00:01:03.080 --> 00:01:05.440] Hablante_228:  tienen como más componentes con procesadores normales,
+
+[00:01:05.440 --> 00:01:08.080] Hablante_247:  o sea, donde tenías, en un ACPU, un montón de núcleos,
+
+[00:01:08.080 --> 00:01:11.240] Hablante_171:  y ya está, al en blanco, que sea 8 núcleos y de núcleos lo que sea.
+
+[00:01:11.240 --> 00:01:14.720] Hablante_1:  Y ahora tienen todo esto, y aparte tienen esto de que abajo, mira, la NPU.
+
+[00:01:14.720 --> 00:01:16.960] Hablante_20:  La NPU es la Neural Processing Unit,
+
+[00:01:16.960 --> 00:01:19.200] Hablante_12:  está pensada para correr cosas de inteligencia artificial.
+
+[00:01:19.200 --> 00:01:22.680] Hablante_253:  O sea, grá, tienen como algo específico para la inteligencia artificial.
+
+[00:01:22.680 --> 00:01:25.920] Hablante_20:  Dentro del procesador, que luego realmente, realmente,
+
+[00:01:25.920 --> 00:01:27.920] Hablante_256:  hacía de hoy, si no es para muy poco.
+
+[00:01:27.920 --> 00:01:30.440] Hablante_28:  Y esto de aquí, tío, o sea, lo que es, está la tecla de Copilot.
+
+[00:01:30.440 --> 00:01:33.400] Hablante_34:  Esto va a servir para llamar a Copilot, que es con una especie de...
+
+[00:01:33.400 --> 00:01:34.400] Hablante_160:  Y...
+
+[00:01:34.400 --> 00:01:35.240] Hablante_210:  Es una IA.
+
+[00:01:35.240 --> 00:01:37.760] Hablante_260:  Una feature de inteligencia artificial dentro de Windows.
+
+[00:01:37.760 --> 00:01:39.080] Hablante_230:  Y con esta tecla lo va a invocar.
+
+[00:01:39.080 --> 00:01:41.000] Hablante_240:  Estos lo están teniendo ya todos los portátiles nuevos,
+
+[00:01:41.000 --> 00:01:43.080] Hablante_190:  aunque ya te digo, mucho marketing en esto.
+
+[00:01:43.080 --> 00:01:46.120] Hablante_1:  Y todo esto correrá en el caso de los portátiles en la NPU.
+
+[00:01:46.120 --> 00:01:47.880] Hablante_188:  Porque no tienes la tarjeta gráfica aquí,
+
+[00:01:47.880 --> 00:01:50.480] Hablante_21:  porque usar la tarjeta gráfica para esto consume mucha corriente,
+
+[00:01:50.480 --> 00:01:51.720] Hablante_223:  porque la gráfica es muy potente.
+
+[00:01:51.760 --> 00:01:54.000] Hablante_15:  Pero idealmente la gráfica serviría, ¿sabes?
+
+[00:01:54.000 --> 00:01:56.520] Hablante_8:  Lo que pasa yo, bueno, ponen este mini procesador para eso.
+
+[00:01:56.520 --> 00:01:57.760] Hablante_216:  Por eso, y hola...
+
+[00:01:57.760 --> 00:02:00.680] Hablante_57:  No se carienta mucho cuando le mete escaña a esto.
+
+[00:02:00.680 --> 00:02:02.560] Hablante_183:  Cuando le mete escaña a la GPU, sí.
+
+[00:02:02.560 --> 00:02:03.400] Hablante_176:  Cuando le mete escaña a tu GPU.
+
+[00:02:03.400 --> 00:02:05.160] Hablante_156:  Yo siempre, yo me acuerdo de chiquitito, ¿no?
+
+[00:02:05.160 --> 00:02:10.040] Hablante_57:  Yo, cuando era más joven, el tema de yo jugaba a videjuegos
+
+[00:02:10.040 --> 00:02:12.200] Hablante_168:  en los portátiles que tenía yo.
+
+[00:02:12.200 --> 00:02:15.120] Hablante_159:  Y el principal problema que tenía yo es que joder,
+
+[00:02:15.120 --> 00:02:17.320] Hablante_147:  que se me calentaba mucho y luego, pues eso,
+
+[00:02:17.320 --> 00:02:19.080] Hablante_229:  empezaba ya a ir mal, empezaba a editar.
+
+[00:02:19.080 --> 00:02:21.480] Hablante_178:  Estos nuevos portátiles solucionan eso.
+
+[00:02:21.520 --> 00:02:23.680] Hablante_186:  Los portátiles gaming todo se calientan.
+
+[00:02:23.680 --> 00:02:27.120] Hablante_15:  O sea, lo que tú decías, que es el estrangulamiento térmico.
+
+[00:02:27.120 --> 00:02:29.600] Hablante_22:  O sea, vale, el estrangulamiento térmico significa que,
+
+[00:02:29.600 --> 00:02:31.720] Hablante_22:  cuando se calienta mucho un ordenador,
+
+[00:02:31.720 --> 00:02:33.720] Hablante_199:  un sub procesador, su gráfica, etc.
+
+[00:02:33.720 --> 00:02:36.680] Hablante_257:  Para no quemarse, no involarse, baja el rendimiento.
+
+[00:02:36.680 --> 00:02:38.440] Hablante_8:  Supremáticamente dice, voy a rendir menos,
+
+[00:02:38.440 --> 00:02:41.160] Hablante_31:  así me calienta menos y sobrevive a esta temperatura.
+
+[00:02:41.160 --> 00:02:41.640] Hablante_172:  ¿De acuerdo?
+
+[00:02:41.640 --> 00:02:44.160] Hablante_8:  Eso pasa normalmente cuando la refrigeración que trae el portátil
+
+[00:02:44.160 --> 00:02:47.800] Hablante_31:  es una mierda o cuando está asustia por dentro,
+
+[00:02:47.800 --> 00:02:49.800] Hablante_187:  tiene polvo, mierda que seguramente también fuera tu caso.
+
+[00:02:49.800 --> 00:02:50.800] Hablante_200:  Sí, sí, está dentro.
+
+[00:02:50.800 --> 00:02:51.960] Hablante_180:  Yo guardo de mierda así.
+
+[00:02:51.960 --> 00:02:52.480] Hablante_166:  Exacto.
+
+[00:02:52.480 --> 00:02:55.720] Hablante_161:  Entonces, eso se puede solucionar limpiando,
+
+[00:02:55.720 --> 00:02:56.560] Hablante_153:  poniendo mentirador ex,
+
+[00:02:56.560 --> 00:02:58.040] Hablante_150:  pero no lo hace eso.
+
+[00:02:58.040 --> 00:02:59.360] Hablante_148:  Es efectivamente.
+
+[00:02:59.360 --> 00:03:01.160] Hablante_191:  Pero en estos portátiles de esta gama,
+
+[00:03:01.160 --> 00:03:03.120] Hablante_254:  que esto no es gama alta, es gama medio,
+
+[00:03:03.120 --> 00:03:05.480] Hablante_274:  pero igualmente ya estamos hablando de un portátil
+
+[00:03:05.480 --> 00:03:08.040] Hablante_163:  de una cierta calidad, ya sabes, no es como gama de entrada.
+
+[00:03:08.040 --> 00:03:09.560] Hablante_189:  Con biujos, por lo menos, no pasa.
+
+[00:03:09.560 --> 00:03:12.800] Hablante_8:  ¿Cuál te pasaría haciendo un render durante mucho tiempo?
+
+[00:03:12.800 --> 00:03:13.800] Hablante_258:  Pero no se lo animaron.
+
+[00:03:13.800 --> 00:03:15.880] Hablante_244:  Un render que sea una animación con blender
+
+[00:03:15.880 --> 00:03:17.840] Hablante_268:  que tardas como 16 horas en perno.
+
+[00:03:17.840 --> 00:03:20.360] Hablante_28:  Lo puedes hacerlo, lo dejas haciendo y lo haciendo.
+
+[00:03:20.360 --> 00:03:21.840] Hablante_251:  Llega a un momento que bajara potencia.
+
+[00:03:21.840 --> 00:03:23.560] Hablante_262:  Y tienes una sartén al llegar, ¿no?
+
+[00:03:23.560 --> 00:03:25.840] Hablante_205:  No, pero lo que hace es regular la potencia
+
+[00:03:25.840 --> 00:03:26.480] Hablante_261:  para que no...
+
+[00:03:26.480 --> 00:03:27.160] Hablante_219:  Si autoregula.
+
+[00:03:27.160 --> 00:03:28.080] Hablante_146:  Si autoregula.
+
+[00:03:28.080 --> 00:03:30.280] Hablante_236:  O sea que quizás tardas más de lo que te ponía al principio.
+
+[00:03:30.280 --> 00:03:32.200] Hablante_194:  Exacto, pero no hay problema.
+
+[00:03:32.200 --> 00:03:33.000] Hablante_282:  Y se no arde.
+
+[00:03:33.000 --> 00:03:34.560] Hablante_164:  Vale, no se prenal fuego, vale.
+
+[00:03:34.560 --> 00:03:36.520] Hablante_174:  Pero entonces eso básicamente tiene la NPU Estar
+
+[00:03:36.520 --> 00:03:39.000] Hablante_173:  y ese es el motivo por si el cual se llama AI.
+
+[00:03:39.000 --> 00:03:40.800] Hablante_196:  Y esto lo está haciendo ahora, todas las marcas.
+
+[00:03:40.800 --> 00:03:42.920] Hablante_109:  El concepto de portátil de creación de contenido
+
+[00:03:42.920 --> 00:03:45.000] Hablante_128:  con esos portátiles normal, gaming de toda la vida,
+
+[00:03:45.000 --> 00:03:45.960] Hablante_234:  no solo es la estética,
+
+[00:03:45.960 --> 00:03:46.800] Hablante_220:  que sí que será que la estética
+
+[00:03:46.800 --> 00:03:48.560] Hablante_177:  busca ser un poco más como de trabajo,
+
+[00:03:48.560 --> 00:03:49.680] Hablante_272:  un poco más sería.
+
+[00:03:49.680 --> 00:03:51.720] Hablante_211:  Si no que también es la pantalla.
+
+[00:03:51.720 --> 00:03:55.440] Hablante_1:  Si fuera un portátil gaming igual la idea sería tener un monitor
+
+[00:03:55.440 --> 00:03:58.640] Hablante_1:  1080 o 1440p, que entonces es mucho sercios.
+
+[00:03:58.640 --> 00:03:59.120] Hablante_152:  Vale.
+
+[00:03:59.120 --> 00:03:59.640] Hablante_284:  ¿Sabes?
+
+[00:03:59.640 --> 00:04:01.720] Hablante_131:  Entonces aquí no, aquí tenemos a lo mejor una resolución
+
+[00:04:01.720 --> 00:04:05.280] Hablante_17:  que son 2880 por 1800, más resolución del normal
+
+[00:04:05.280 --> 00:04:07.520] Hablante_231:  en un portátil gaming, pero por otro lado,
+
+[00:04:07.520 --> 00:04:09.240] Hablante_237:  tampoco es que tenga tanto sercios.
+
+[00:04:09.240 --> 00:04:11.080] Hablante_241:  En este caso, por ejemplo, está pandemia de 60.
+
+[00:04:11.080 --> 00:04:11.600] Hablante_252:  ¿Por qué?
+
+[00:04:11.600 --> 00:04:13.680] Hablante_221:  Porque hay para editar vídeo, para trabajar en un autochop,
+
+[00:04:13.680 --> 00:04:14.200] Hablante_169:  etc.
+
+[00:04:14.200 --> 00:04:16.080] Hablante_217:  No necesitas 144 vercios.
+
+[00:04:16.480 --> 00:04:19.200] Hablante_17:  Y lo que sí necesitas es buena definición de color,
+
+[00:04:19.200 --> 00:04:22.040] Hablante_21:  una certificación de color, buena cobertura del RGB,
+
+[00:04:22.040 --> 00:04:23.880] Hablante_175:  buena resolución, etcétera.
+
+[00:04:23.880 --> 00:04:26.280] Hablante_14:  Entonces la diferencia entre un portátil de creación de contenido
+
+[00:04:26.280 --> 00:04:27.840] Hablante_5:  y un portátil gaming es esa.
+
+[00:04:27.840 --> 00:04:29.520] Hablante_65:  O sea, los dos tienen gráfica dedicada,
+
+[00:04:29.520 --> 00:04:32.280] Hablante_9:  los dos tienen, pues en este caso, una 40, 60, 8 gigas.
+
+[00:04:32.280 --> 00:04:34.720] Hablante_193:  Y un procesador potente, puede jugar aquí.
+
+[00:04:34.720 --> 00:04:36.920] Hablante_264:  Claro, yo tengo que preguntar, pero ¿de hecho puedo jugar aquí?
+
+[00:04:36.920 --> 00:04:39.880] Hablante_143:  Puedes jugar, pero la pantalla es 60Hz.
+
+[00:04:39.880 --> 00:04:43.240] Hablante_8:  Y aparte pasa eso, que la resolución de 800 es muy alta.
+
+[00:04:43.240 --> 00:04:45.560] Hablante_8:  Y si juegas a la resolución nativa de la pantalla,
+
+[00:04:45.560 --> 00:04:46.640] Hablante_198:  el juego va a ir un poco...
+
+[00:04:46.640 --> 00:04:48.080] Hablante_118:  Ya, o sea, que...
+
+[00:04:48.080 --> 00:04:51.120] Hablante_265:  Esto es para un público muy específico, ¿no?
+
+[00:04:51.120 --> 00:04:53.320] Hablante_275:  Es para aquel que necesite un portátil,
+
+[00:04:53.320 --> 00:04:57.480] Hablante_63:  que quiera editar vídeos, que quiera hacer cosas de Photoshop,
+
+[00:04:57.480 --> 00:04:59.520] Hablante_127:  que quiera hacer blender, que quiera hacer este tipo de cosas.
+
+[00:04:59.520 --> 00:05:01.880] Hablante_131:  Esto antiguamente era el típico que se compraba lo mejor un Mac,
+
+[00:05:01.880 --> 00:05:03.960] Hablante_233:  o sea, es que decía, no, un Mac para los artistas y tal.
+
+[00:05:03.960 --> 00:05:04.640] Hablante_192:  Sí.
+
+[00:05:04.640 --> 00:05:05.880] Hablante_137:  ¿Qué pasa, aquel Mac?
+
+[00:05:05.880 --> 00:05:08.960] Hablante_3:  No tiene la potencia que tienes con una tarjeta gráfica dedicada.
+
+[00:05:08.960 --> 00:05:11.280] Hablante_12:  O te tienes que estar muchísimo dinero para llegar esa potencia.
+
+[00:05:11.280 --> 00:05:11.800] Hablante_116:  Vale.
+
+[00:05:11.800 --> 00:05:14.680] Hablante_227:  Sería un poco la lógica, digamos, desde tipo de productos.
+
+[00:05:15.560 --> 00:05:18.120] Hablante_151:  Me gusta la construcción, me gusta la línea de diseño que se hace.
+
+[00:05:18.120 --> 00:05:21.480] Hablante_32:  A mí sí, a mí me parece que tiene mucho sentido como está diseñado.
+
+[00:05:21.480 --> 00:05:22.440] Hablante_144:  A mí me...
+
+[00:05:22.440 --> 00:05:26.240] Hablante_224:  O sea, quizás es un adquipollez, pero me gusta mucho que quiten a como...
+
+[00:05:26.240 --> 00:05:27.160] Hablante_155:  Tienes este cachito de tránsito.
+
+[00:05:27.160 --> 00:05:29.080] Hablante_269:  Sí, sí, yo se me gusta.
+
+[00:05:29.080 --> 00:05:30.360] Hablante_95:  Esto lo he visto en varios modelos, ¿eh?
+
+[00:05:30.360 --> 00:05:33.360] Hablante_35:  Para desarrollo de apps y web, sí, o sea, también no podrías usar para eso.
+
+[00:05:33.360 --> 00:05:35.480] Hablante_88:  Lo que pasa es para desarrollo de apps y web,
+
+[00:05:35.480 --> 00:05:37.880] Hablante_65:  no te hace falta una gráfica.
+
+[00:05:37.880 --> 00:05:40.000] Hablante_248:  No necesitas una 40, 60, 80 gigas.
+
+[00:05:40.000 --> 00:05:42.520] Hablante_3:  A ver, si quieres jugar, de vez en cuando, pues está bien tenerla, ¿no?
+
+[00:05:42.520 --> 00:05:44.840] Hablante_255:  Entonces quizás este portátil no tiene tanto sentido.
+
+[00:05:44.840 --> 00:05:47.200] Hablante_134:  Además, o sea, para programar, que yo entiendo que soy...
+
+[00:05:47.200 --> 00:05:51.240] Hablante_32:  Porque yo no paro de recibir este problema a la hora de vender teclado, si tal.
+
+[00:05:51.240 --> 00:05:53.280] Hablante_110:  Es que tenéis el mayor menor que aquí, o sea,
+
+[00:05:53.280 --> 00:05:55.040] Hablante_179:  creo que es el lugar menos natural que hay.
+
+[00:05:55.040 --> 00:05:57.080] Hablante_120:  O sea, pero tienes sentido, tío, tienes sentido.
+
+[00:05:57.080 --> 00:05:58.240] Hablante_249:  No, si es sentido, es una solución.
+
+[00:05:58.240 --> 00:05:58.840] Hablante_145:  ¿Tiene?
+
+[00:05:58.840 --> 00:05:59.840] Hablante_208:  ¿Tiene?
+
+[00:05:59.840 --> 00:06:00.840] Hablante_245:  Cuando me piden.
+
+[00:06:00.840 --> 00:06:01.840] Hablante_112:  Tiene que tener ISO de ese teclado.
+
+[00:06:01.840 --> 00:06:03.240] Hablante_108:  A mí siempre me piden que lo tenga aquí.
+
+[00:06:03.240 --> 00:06:04.680] Hablante_162:  Una mezcla entre ANC y...
+
+[00:06:04.680 --> 00:06:05.880] Hablante_204:  Es una ANCISO.
+
+[00:06:05.880 --> 00:06:06.840] Hablante_259:  Es una ANCISO, tío.
+
+[00:06:06.840 --> 00:06:10.600] Hablante_63:  O sea, lo que han hecho aquí ha sido, vale, no vamos a adaptar el teclado alizo europeo,
+
+[00:06:10.600 --> 00:06:12.360] Hablante_3:  pero así que vamos a meter esta cosa aquí.
+
+[00:06:12.360 --> 00:06:13.360] Hablante_212:  Sí.
+
+[00:06:13.360 --> 00:06:14.600] Hablante_76:  Y antes, digo, ¿qué cojones es esto?
+
+[00:06:14.600 --> 00:06:16.440] Hablante_111:  Y ahora que lo has explicado, ¿qué es el mayor menor que tiene?
+
+[00:06:16.440 --> 00:06:20.040] Hablante_167:  Que lo claro, o sea, me parece una solución super inteligente para el problema.
+
+[00:06:20.040 --> 00:06:23.480] Hablante_1:  Una cosa que me mola de engenar los poderes nuevos que están saliendo,
+
+[00:06:23.480 --> 00:06:25.480] Hablante_9:  una parte que tiene a su porte guifixiete,
+
+[00:06:25.480 --> 00:06:27.040] Hablante_195:  guifixiete es el nuevo estándar de wifi.
+
+[00:06:27.040 --> 00:06:29.040] Hablante_89:  Y por lo que prometen, va a ser súper rápido.
+
+[00:06:29.040 --> 00:06:29.960] Hablante_102:  Pero una verdad que probarlo.
+
+[00:06:29.960 --> 00:06:32.840] Hablante_66:  O sea, estamos hablando de que ya quizás no te hace falta ni siquiera tener un cable de red
+
+[00:06:32.840 --> 00:06:34.520] Hablante_142:  para transferir a velocidad súper rápida.
+
+[00:06:34.520 --> 00:06:36.160] Hablante_266:  O sea, de verdad, prometen mucho.
+
+[00:06:36.160 --> 00:06:37.200] Hablante_213:  Vamos a ver cómo acaba siendo.
+
+[00:06:37.200 --> 00:06:39.800] Hablante_281:  Pero en cualquier caso, otra cosa que...
+
+[00:06:39.800 --> 00:06:46.120] Hablante_6:  Que tiene que aumentar que está Y es el hecho de que ahora todos los portátiles vienen con caradores.
+
+[00:06:46.120 --> 00:06:47.120] Hablante_184:  ¿Ustedes?
+
+[00:06:47.120 --> 00:06:48.120] Hablante_94:  Ustedes para cargar el ponte de ti.
+
+[00:06:48.120 --> 00:06:49.360] Hablante_44:  No sé, digo, ¿cuál es la hostia?
+
+[00:06:49.360 --> 00:06:51.800] Hablante_158:  O sea, no hace falta eso es la hostia.
+
+[00:06:51.800 --> 00:06:54.200] Hablante_106:  Que tengas el típico cargador de toda la vida,
+
+[00:06:54.200 --> 00:06:56.720] Hablante_276:  sino que simplemente con un SVC, yo lo puedo escargar.
+
+[00:06:56.720 --> 00:06:59.720] Hablante_170:  Pero me imagino que tardará a encargar.
+
+[00:07:00.720 --> 00:07:04.640] Hablante_4:  No, simplemente, de hecho, no puedes usar, o sea, lo usas el portátil con el SVC.
+
+[00:07:04.640 --> 00:07:07.880] Hablante_250:  Sí, pero si quieres cargar con un SVC, no va a tardar mucho.
+
+[00:07:08.000 --> 00:07:09.200] Hablante_103:  Depende la potencia que tenga el caro.
+
+[00:07:09.200 --> 00:07:10.000] Hablante_85:  Por sus patios.
+
+[00:07:10.000 --> 00:07:12.440] Hablante_157:  Todo tiene muchísimos conectores, pero bueno, por ahí ando.
+
+[00:07:12.440 --> 00:07:14.400] Hablante_75:  Falta, para mí le falta algún SVC, ¿no?
+
+[00:07:14.400 --> 00:07:17.400] Hablante_182:  El puerto es de cerneta, en hecho como que esto se abra así
+
+[00:07:17.400 --> 00:07:21.400] Hablante_59:  para que sea el portátil fino, pero que tengas el puerto full size de cerneta.
+
+[00:07:21.400 --> 00:07:22.320] Hablante_149:  ¿Sabes?
+
+[00:07:22.320 --> 00:07:26.480] Hablante_59:  Hay una tendencia en general a quitar puertos a los portátiles ligeros y finos y pequeños.
+
+[00:07:26.480 --> 00:07:29.440] Hablante_4:  Y en general, otra cosa que pasa con esto tipo de portátiles
+
+[00:07:29.440 --> 00:07:31.280] Hablante_136:  es que cuando hacen el sistema de refrigeración,
+
+[00:07:31.280 --> 00:07:33.160] Hablante_73:  la aquí es una gráfica potente, hay que enfriarla.
+
+[00:07:33.160 --> 00:07:34.560] Hablante_126:  Me cojó en sofriar esto de otra manera.
+
+[00:07:34.560 --> 00:07:36.320] Hablante_130:  Entonces, dejando este objeto aquí
+
+[00:07:36.440 --> 00:07:41.400] Hablante_270:  para que entre aire y luego los laterales por aquí y aquí sale el aire.
+
+[00:07:41.400 --> 00:07:41.920] Hablante_140:  ¿Sabes?
+
+[00:07:41.920 --> 00:07:43.680] Hablante_181:  Esto es este sitio y a lo pierdes para la conequividad.
+
+[00:07:43.680 --> 00:07:45.800] Hablante_14:  Antes tenía un portátil gaming que era tofeo,
+
+[00:07:45.800 --> 00:07:49.480] Hablante_26:  que era grande, pesado con 40 cables, con un cable gordo de la idea.
+
+[00:07:49.480 --> 00:07:52.640] Hablante_87:  Además, que eran un áclico orbo, mini display porta, HDMI, no sé qué.
+
+[00:07:52.640 --> 00:07:55.320] Hablante_14:  ¿Qué sigue haciendo HDMI? Pero bueno, antes tenías todo eso.
+
+[00:07:55.320 --> 00:07:57.160] Hablante_1:  Y ahora es como que en estas épocas modernas
+
+[00:07:57.160 --> 00:07:59.560] Hablante_99:  han funcionado todos los conceptos que teníamos antes que lo veíamos al mejor.
+
+[00:07:59.560 --> 00:08:00.320] Hablante_277:  Sí, como un Mac.
+
+[00:08:00.320 --> 00:08:03.120] Hablante_3:  Pues todo esto ahora tenemos ahora en portadeles que son potentes.
+
+[00:08:03.120 --> 00:08:04.800] Hablante_97:  Eso está bueno, verdad. Me parece bueno.
+
+[00:08:04.800 --> 00:08:05.760] Hablante_165:  ¿Qué precio tiene?
+
+[00:08:05.760 --> 00:08:07.760] Hablante_238:  1779 euros.
+
+[00:08:07.760 --> 00:08:09.560] Hablante_246:  A ver, está muy caro, portadeles.
+
+[00:08:09.560 --> 00:08:11.880] Hablante_84:  Pero bueno, entiendo en cuenta que es una workstation de trabajo,
+
+[00:08:11.880 --> 00:08:15.000] Hablante_123:  la construcción del chasis, aluminio y tal, lo veo razonable.
+
+[00:08:15.000 --> 00:08:17.440] Hablante_215:  O sea, si quieres un Mac con esta potencia,
+
+[00:08:17.440 --> 00:08:19.480] Hablante_209:  te vas a salir bastante más caro, lo va a dar.
+
+[00:08:19.480 --> 00:08:21.400] Hablante_271:  Pero ¿por qué los portadeles están tan caros?
+
+[00:08:21.400 --> 00:08:24.000] Hablante_115:  Lo de que están tan caros no es tan cierto.
+
+[00:08:24.000 --> 00:08:26.520] Hablante_11:  Primero que nada, porque mucha gente compra portáteles
+
+[00:08:26.520 --> 00:08:28.080] Hablante_55:  desde 700 o 800 euros.
+
+[00:08:28.080 --> 00:08:28.600] Hablante_226:  ¿Vale?
+
+[00:08:28.600 --> 00:08:30.280] Hablante_93:  Pues están distinto de esto.
+
+[00:08:30.280 --> 00:08:31.080] Hablante_82:  ¿Tan distinto?
+
+[00:08:31.080 --> 00:08:32.320] Hablante_201:  Porque están distinto.
+
+[00:08:32.320 --> 00:08:35.880] Hablante_10:  Monitor, touchpad, construcción, materiales, conectividad.
+
+[00:08:35.880 --> 00:08:37.800] Hablante_3:  O sea, todo lo que está viendo aquí, del monitor STIPS,
+
+[00:08:37.800 --> 00:08:38.720] Hablante_90:  se he calibrado,
+
+[00:08:38.720 --> 00:08:40.000] Hablante_100:  todos estos Thunderbolts,
+
+[00:08:40.000 --> 00:08:41.800] Hablante_185:  todos estos puertos, el sistema de refrigeración,
+
+[00:08:41.800 --> 00:08:43.000] Hablante_42:  todo eso, olvídate.
+
+[00:08:43.000 --> 00:08:43.680] Hablante_124:  O sea, todo eso.
+
+[00:08:43.680 --> 00:08:44.320] Hablante_92:  Por mucho que...
+
+[00:08:44.320 --> 00:08:45.680] Hablante_242:  Sí, ya me ha sido claro, claro.
+
+[00:08:45.680 --> 00:08:46.680] Hablante_68:  Vale.
+
+[00:08:46.680 --> 00:08:49.560] Hablante_66:  ¿Es que este tiene las bases specs que uno que vale 800 euros?
+
+[00:08:49.560 --> 00:08:50.640] Hablante_239:  Ya, pero no es lo mismo.
+
+[00:08:50.640 --> 00:08:51.480] Hablante_243:  Hubfond, ¿sabes?
+
+[00:08:51.480 --> 00:08:53.480] Hablante_46:  Eso, es suerte con eso.
+
+[00:08:53.480 --> 00:08:54.480] Hablante_117:  Eso es un poco el tema.
+
+[00:08:54.480 --> 00:08:57.240] Hablante_63:  Y luego, el otro tema es que los precios se engeren en su vida,
+
+[00:08:57.240 --> 00:08:57.760] Hablante_96:  de todo.
+
+[00:08:57.760 --> 00:08:58.280] Hablante_91:  Sí, bien.
+
+[00:08:58.280 --> 00:08:59.920] Hablante_77:  La tecnología en general han suido bastante,
+
+[00:08:59.920 --> 00:09:01.400] Hablante_125:  los portadeles están bastante caros.
+
+[00:09:01.520 --> 00:09:04.160] Hablante_35:  Y aparte, eso es que es un poco de herramienta de trabajo,
+
+[00:09:04.160 --> 00:09:06.880] Hablante_283:  no sea, antes tuvieros un portadil con una 3060.
+
+[00:09:06.880 --> 00:09:08.280] Hablante_78:  Una 3060, la generación pasada.
+
+[00:09:08.280 --> 00:09:09.880] Hablante_47:  O la 2060.
+
+[00:09:09.880 --> 00:09:11.400] Hablante_122:  Un portadil con una 2060,
+
+[00:09:11.400 --> 00:09:14.000] Hablante_59:  podía sincontrarlo por 1.500, 700 euros, ¿vale?
+
+[00:09:14.000 --> 00:09:15.160] Hablante_107:  ¿Qué pasa aquí ahora?
+
+[00:09:15.160 --> 00:09:17.640] Hablante_3:  La gráfica nueva, se sigue llamando 4060.
+
+[00:09:17.640 --> 00:09:19.440] Hablante_135:  Pero no es la misma 4060 que antes.
+
+[00:09:19.440 --> 00:09:21.120] Hablante_72:  Pero no es la misma 60 que antes.
+
+[00:09:21.120 --> 00:09:23.240] Hablante_5:  O sea, han subido la potencia,
+
+[00:09:23.240 --> 00:09:24.960] Hablante_278:  pero la vez han subido el precio de la gráfica.
+
+[00:09:24.960 --> 00:09:27.160] Hablante_3:  Este es el tema que siempre trató en el canal,
+
+[00:09:27.160 --> 00:09:28.640] Hablante_10:  que siempre lo digo diciendo un montón de años,
+
+[00:09:28.640 --> 00:09:30.680] Hablante_16:  y que siempre es la tónica que vamos hablando,
+
+[00:09:30.680 --> 00:09:32.520] Hablante_141:  y ese motivo por el cual la tecnología está escalando
+
+[00:09:32.520 --> 00:09:33.640] Hablante_98:  tanto a los precios.
+
+[00:09:33.640 --> 00:09:37.120] Hablante_6:  Y es que básicamente está costando muchísimo
+
+[00:09:37.120 --> 00:09:38.800] Hablante_127:  mejorar los procesadores.
+
+[00:09:38.800 --> 00:09:39.720] Hablante_38:  La ley de Murr.
+
+[00:09:39.720 --> 00:09:42.080] Hablante_101:  Murr era un herofundador de Intel,
+
+[00:09:42.080 --> 00:09:45.040] Hablante_33:  y él decía que cada dos años la potencia de los chips
+
+[00:09:45.040 --> 00:09:45.800] Hablante_61:  se duplicaba.
+
+[00:09:45.800 --> 00:09:47.720] Hablante_54:  Entonces, tú tenías un chip de silicio,
+
+[00:09:47.720 --> 00:09:49.160] Hablante_49:  ese chip cada dos años,
+
+[00:09:49.160 --> 00:09:50.320] Hablante_53:  mantiendo el mismo tamaño,
+
+[00:09:50.320 --> 00:09:51.400] Hablante_104:  duplicaba su potencia.
+
+[00:09:51.400 --> 00:09:52.080] Hablante_105:  ¿Por qué?
+
+[00:09:52.080 --> 00:09:54.920] Hablante_34:  Porque se aprendía a mejores técnicas de fabricación
+
+[00:09:54.920 --> 00:09:56.640] Hablante_121:  y mejoraba la potencia.
+
+[00:09:56.640 --> 00:09:58.680] Hablante_138:  El mismo, la misma cantidad de silicio,
+
+[00:09:58.680 --> 00:10:00.280] Hablante_263:  mismo material, mismo costes,
+
+[00:10:00.280 --> 00:10:00.800] Hablante_52:  pinto todo.
+
+[00:10:00.800 --> 00:10:01.800] Hablante_45:  Entonces, ¿qué pasaba?
+
+[00:10:01.800 --> 00:10:03.360] Hablante_50:  Que cada dos años tenías un chip nuevo
+
+[00:10:03.360 --> 00:10:04.720] Hablante_60:  que era prácticamente el doble de potente,
+
+[00:10:04.720 --> 00:10:05.720] Hablante_119:  que costaba lo mismo.
+
+[00:10:05.720 --> 00:10:07.920] Hablante_132:  Esto, seguido, a tomar por culo,
+
+[00:10:07.920 --> 00:10:09.240] Hablante_74:  hace muchos años.
+
+[00:10:09.240 --> 00:10:10.600] Hablante_279:  ¿Qué es lo que hacen las marcas?
+
+[00:10:10.600 --> 00:10:11.240] Hablante_80:  Te dicen.
+
+[00:10:11.240 --> 00:10:11.840] Hablante_36:  Han pasado dos años.
+
+[00:10:11.840 --> 00:10:13.800] Hablante_81:  Sacamos uno mejor, pero no es mejor,
+
+[00:10:13.800 --> 00:10:15.960] Hablante_33:  porque la tecnología ha mejorado una barbaridad,
+
+[00:10:15.960 --> 00:10:16.960] Hablante_79:  y ahora te sacamos uno mejor.
+
+[00:10:16.960 --> 00:10:17.560] Hablante_40:  No, no.
+
+[00:10:17.560 --> 00:10:19.480] Hablante_6:  Te sacamos uno que tiene más silicio,
+
+[00:10:19.480 --> 00:10:21.800] Hablante_58:  que tiene más coste de fabricación,
+
+[00:10:21.800 --> 00:10:23.280] Hablante_67:  que tiene mejores fases,
+
+[00:10:23.280 --> 00:10:25.200] Hablante_62:  que tiene mejores circuitos,
+
+[00:10:25.200 --> 00:10:27.480] Hablante_2:  que tiene más rápida para que vaya más rápido.
+
+[00:10:27.520 --> 00:10:28.760] Hablante_71:  Pero esto no puede ser más,
+
+[00:10:28.760 --> 00:10:30.720] Hablante_37:  tiene que pagar más caro, sí o sí.
+
+[00:10:30.720 --> 00:10:32.640] Hablante_83:  Eso combinado con toda la crisis de fabricación
+
+[00:10:32.640 --> 00:10:33.760] Hablante_70:  que hubo durante el COVID,
+
+[00:10:33.760 --> 00:10:37.680] Hablante_39:  ya no se consigue el doble de transistores en un chip,
+
+[00:10:37.680 --> 00:10:40.160] Hablante_33:  sino que para hacerlo artificialmente mejor,
+
+[00:10:40.160 --> 00:10:41.560] Hablante_2:  lo tienen que hacer más gordo.
+
+[00:10:41.560 --> 00:10:43.640] Hablante_11:  Lo tienen que hacer con más voltaje.
+
+[00:10:43.640 --> 00:10:44.480] Hablante_267:  Para que tengamos voltaje,
+
+[00:10:44.480 --> 00:10:47.160] Hablante_27:  tiene que tener componentes más caros, etcétera, etcétera.
+
+[00:10:47.160 --> 00:10:48.680] Hablante_48:  Es como que mejora,
+
+[00:10:48.680 --> 00:10:49.760] Hablante_19:  pero esa mejora implica que más...
+
+[00:10:49.760 --> 00:10:50.720] Hablante_23:  Pero implica mucho más coste.
+
+[00:10:50.720 --> 00:10:52.280] Hablante_86:  Sí, más coste, fan subiendo.
+
+[00:10:52.280 --> 00:10:54.880] Hablante_16:  Por eso, por ejemplo, las placas base,
+
+[00:10:54.880 --> 00:10:57.040] Hablante_133:  la típica giro de Asus,
+
+[00:10:57.040 --> 00:10:58.880] Hablante_8:  antes palía, 300 euros.
+
+[00:10:58.880 --> 00:11:00.400] Hablante_139:  Ahora cuesta 800.
+
+[00:11:00.400 --> 00:11:02.480] Hablante_11:  La misma gama de placa base, ¿sabes?
+
+[00:11:02.480 --> 00:11:04.600] Hablante_30:  O sea, se hay que tomar por saco.
+
+[00:11:04.600 --> 00:11:05.840] Hablante_114:  Y por ahí va el tema, por eso,
+
+[00:11:05.840 --> 00:11:06.920] Hablante_51:  los bordaderos son más caros,
+
+[00:11:06.920 --> 00:11:08.280] Hablante_11:  pero bueno, dentro de las gamas,
+
+[00:11:08.280 --> 00:11:09.920] Hablante_43:  mis esdeciendos es un portátil,
+
+[00:11:09.920 --> 00:11:11.600] Hablante_13:  ya para rendimiento,
+
+[00:11:11.600 --> 00:11:13.960] Hablante_113:  que no es gama alta ni es una gama super alta,
+
+[00:11:13.960 --> 00:11:15.640] Hablante_41:  pero ya es un portátil con el que puede currar
+
+[00:11:15.640 --> 00:11:16.760] Hablante_69:  en plan de que derrinde para...
+
+[00:11:16.760 --> 00:11:17.280] Hablante_129:  Sí, sí, sí.
+
+[00:11:17.280 --> 00:11:18.280] Hablante_56:  ...curro y tal, ¿sabes?
+
+[00:11:18.280 --> 00:11:19.040] Hablante_18:  Esto está y guay.
+
+[00:11:19.040 --> 00:11:21.240] Hablante_25:  Me gustan estos modulos que están saliendo la verdad.
+
+[00:11:21.240 --> 00:11:22.840] Hablante_7:  Sí que diga gente, pues hacemos pruebas en mi canal
+
+[00:11:22.840 --> 00:11:24.160] Hablante_64:  y estaremos un poco más,
+
+[00:11:24.160 --> 00:11:25.760] Hablante_24:  profunda la review de rendimiento.
+
