@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Resultados del CV</title>
+</head>
+<body>
+    <h1>Información extraída del CV</h1>
+    <h3>Correos encontrados:</h3>
+    <ul>
+        {% for email in info.emails %}
+            <li>{{ email }}</li>
+        {% endfor %}
+    </ul>
+    <h3>Nombres encontrados:</h3>
+    <ul>
+        {% for name in info.names %}
+            <li>{{ name }}</li>
+        {% endfor %}
+    </ul>
+    <h3>Texto completo:</h3>
+    <p>{{ info.full_text }}</p>
+    <a href="/">Subir otro CV</a>
+</body>
+</html>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard de Vacantes</title>
+  <style>
+    /* Estilos generales */
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+    }
+    #dashboard {
+      display: flex;
+      height: 100vh;
+    }
+    /* Menú lateral izquierdo */
+    #sidebar {
+      background: #333;
+      color: #fff;
+      width: 250px;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    #sidebar h2 {
+      margin-top: 0;
+      font-size: 1.5em;
+      text-align: center;
+    }
+    #sidebar ul {
+      list-style: none;
+      padding: 0;
+    }
+    #sidebar ul li {
+      padding: 10px;
+      margin: 5px 0;
+      background: #444;
+      cursor: pointer;
+    }
+    #sidebar ul li:hover {
+      background: #555;
+    }
+    /* Panel principal derecho */
+    #main-content {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      box-sizing: border-box;
+    }
+    #upload-section, #report-section {
+      background: #fff;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+      border-radius: 4px;
+    }
+    #upload-section h2, #report-section h2 {
+      margin-top: 0;
+    }
+    .upload-group {
+      margin-bottom: 15px;
+    }
+    .upload-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    .upload-group input[type="file"] {
+      width: 100%;
+    }
+    #analyze-btn {
+      padding: 10px 20px;
+      background: #333;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    #analyze-btn:hover {
+      background: #555;
+    }
+    canvas {
+      max-width: 100%;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div id="dashboard">
+    <!-- Menú lateral de vacantes -->
+    <div id="sidebar">
+      <h2>Vacantes</h2>
+      <ul>
+        <li>Vacante 1</li>
+        <li>Vacante 2</li>
+        <li>Vacante 3</li>
+        <li>Vacante 4</li>
+      </ul>
+    </div>
+    <!-- Panel principal -->
+    <div id="main-content">
+      <!-- Sección de carga de archivos -->
+      <div id="upload-section">
+        <h2>Subir CV y Audios</h2>
+        <div class="upload-group">
+          <label for="cv-upload">Subir CV:</label>
+          <input type="file" id="cv-upload" accept=".pdf,.doc,.docx">
+        </div>
+        <div class="upload-group">
+          <label for="audio-upload">Subir Audio:</label>
+          <input type="file" id="audio-upload" accept="audio/*">
+        </div>
+        <button id="analyze-btn">Analizar</button>
+      </div>
+      <!-- Sección de reportes y resultados -->
+      <div id="report-section">
+        <h2>Resultados y Reportes</h2>
+        <!-- Gráfico de compatibilidad -->
+        <canvas id="compatibilityChart" width="400" height="200"></canvas>
+        <!-- Gráfico de comparación con requisitos -->
+        <canvas id="requirementsChart" width="400" height="200"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Incluimos Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    // Función para simular el análisis y generar gráficos
+    document.getElementById('analyze-btn').addEventListener('click', function() {
+      // Simulación de análisis con datos aleatorios
+      const compatibility = Math.floor(Math.random() * 100);
+      const requirementsData = [
+        Math.floor(Math.random() * 100),
+        Math.floor(Math.random() * 100),
+        Math.floor(Math.random() * 100),
+        Math.floor(Math.random() * 100)
+      ];
+
+      // Gráfico de compatibilidad (tipo doughnut)
+      const ctx1 = document.getElementById('compatibilityChart').getContext('2d');
+      new Chart(ctx1, {
+        type: 'doughnut',
+        data: {
+          labels: ['Compatibilidad', 'Diferencia'],
+          datasets: [{
+            data: [compatibility, 100 - compatibility],
+            backgroundColor: ['#36A2EB', '#FF6384']
+          }]
+        },
+        options: {
+          responsive: true,
+          title: {
+            display: true,
+            text: 'Compatibilidad del Candidato'
+          }
+        }
+      });
+
+      // Gráfico de comparación con los requisitos del cargo (tipo bar)
+      const ctx2 = document.getElementById('requirementsChart').getContext('2d');
+      new Chart(ctx2, {
+        type: 'bar',
+        data: {
+          labels: ['Requisito 1', 'Requisito 2', 'Requisito 3', 'Requisito 4'],
+          datasets: [{
+            label: 'Nivel de Coincidencia (%)',
+            data: requirementsData,
+            backgroundColor: '#4BC0C0'
+          }]
+        },
+        options: {
+          responsive: true,
+          title: {
+            display: true,
+            text: 'Comparación con Requisitos del Cargo'
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 100
+            }
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>

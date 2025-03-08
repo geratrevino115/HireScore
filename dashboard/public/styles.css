@@ -1,0 +1,127 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+  }
+  
+  #dashboard {
+    display: flex;
+    height: 100vh;
+  }
+  
+  #sidebar {
+    background: #333;
+    color: #fff;
+    width: 250px;
+    padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  #sidebar h2 {
+    margin-top: 0;
+    font-size: 1.5em;
+    text-align: center;
+  }
+  
+  #vacancyList {
+    list-style: none;
+    padding: 0;
+    flex-grow: 1;
+  }
+  
+  #vacancyList li {
+    padding: 10px;
+    margin: 5px 0;
+    background: #444;
+    cursor: pointer;
+  }
+  
+  #vacancyList li:hover {
+    background: #555;
+  }
+  
+  #addVacancyBtn {
+    padding: 10px;
+    background: #007bff;
+    border: none;
+    color: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  
+  #addVacancyBtn:hover {
+    background: #0056b3;
+  }
+  
+  #main-content {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    box-sizing: border-box;
+  }
+  
+  .section {
+    background: #fff;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+  }
+  
+  .section h2 {
+    margin-top: 0;
+  }
+  
+  .upload-group {
+    margin-bottom: 15px;
+  }
+  
+  .upload-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+  
+  .upload-group input[type="file"],
+  .upload-group textarea {
+    width: 100%;
+  }
+  
+  button {
+    padding: 10px 20px;
+    background: #333;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  
+  button:hover {
+    background: #555;
+  }
+  
+  /* Estilos para el modal de agregar vacante */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  
+  .modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    width: 300px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+  }
+  

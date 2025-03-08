@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dashboard de Vacantes</title>
+    <!-- Incluimos Chart.js desde CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="dashboard">
+      <!-- Menú lateral -->
+      <div id="sidebar">
+        <h2>Vacantes</h2>
+        <ul id="vacancyList"></ul>
+        <button id="addVacancyBtn">Agregar Vacante</button>
+      </div>
+      <!-- Panel principal -->
+      <div id="main-content">
+        <p>Selecciona una vacante para ver los detalles.</p>
+      </div>
+    </div>
+
+    <!-- Módulos JS -->
+    <script type="module" src="../src/components/api.js"></script>
+    <script type="module" src="../src/components/vacantes.js"></script>
+    <script type="module" src="../src/components/dashboard.js"></script>
+  </body>
+</html>
