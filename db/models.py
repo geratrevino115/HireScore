@@ -67,3 +67,11 @@ class Aplicacion(Base):
     # Relaciones inversas
     vacante = relationship("Vacante", back_populates="aplicaciones")
     candidato = relationship("Candidato", back_populates="aplicaciones")
+
+class Upload(Base):
+    __tablename__ = "uploads"
+    id = Column(Integer, primary_key=True, index=True)
+    candidate_id = Column(Integer, index=True, nullable=False)
+    cv_filename = Column(String, nullable=False)
+    audio_filename = Column(String, nullable=False)
+    uploaded_at = Column(DateTime, default=datetime.now)
