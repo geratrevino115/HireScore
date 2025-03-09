@@ -1,5 +1,5 @@
 // js/dashboard.js
-import { createAnalysis, getAnalyses } from "./api.js";
+import { createAnalysis, getAnalyses, uploadCVandAudio } from "./api.js";
 
 const mainContent = document.getElementById("main-content");
 
@@ -56,10 +56,12 @@ export function loadVacancyDetails(vacancyId) {
       <label for="audio-upload">Subir Audio:</label>
       <input type="file" id="audio-upload" accept="audio/*">
     </div>
+    <button id="upload-btn">Enviar Archivos</button>
+    <div id="upload-result"></div>
   `;
   container.appendChild(uploadSection);
 
-  // Sección: Reportes y Resultados (colócalos en la posición deseada)
+  // Sección: Reportes y Resultados
   const reportSection = document.createElement("div");
   reportSection.className = "section";
   reportSection.innerHTML = `
@@ -100,7 +102,37 @@ export function loadVacancyDetails(vacancyId) {
     handleAnalyze(vacancyId);
   });
 
-  // Cargar análisis guardados para esta vacante en forma de tabla
+  // Botón: Enviar archivos para guardar localmente y actualizar DB
+  document.getElementById("upload-btn").addEventListener("click", async () => {
+    const cvInput = document.getElementById("cv-upload");
+    const audioInput = document.getElementById("audio-upload");
+    const uploadResult = document.getElementById("upload-result");
+    const uploadBtn = document.getElementById("upload-btn");
+    const cvFile = cvInput.files[0];
+    const audioFile = audioInput.files[0];
+  
+    if (!cvFile || !audioFile) {
+      uploadResult.textContent = "Por favor, selecciona ambos archivos.";
+      return;
+    }
+  
+    // Supongamos que el id del candidato es 1 (puedes actualizarlo según tu lógica)
+    const candidateId = 1;
+  
+    try {
+      // Se envían los archivos junto con el candidateId
+      const response = await uploadCVandAudio(cvFile, audioFile, candidateId);
+      // Se actualiza el div de resultado con la información de la respuesta
+      uploadResult.textContent = `Archivos guardados: CV: ${response.cv_filename}, Audio: ${response.audio_filename}`;
+      // Se actualiza el texto del botón para indicar que se puede subir nuevamente
+      uploadBtn.textContent = "Subir nuevamente";
+    } catch (error) {
+      uploadResult.textContent = `Error al subir archivos: ${error.message}`;
+    }
+  });
+  
+
+  // Cargar análisis guardados para esta vacante en forma de tabla (placeholder)
   loadSavedAnalyses(vacancyId);
 }
 

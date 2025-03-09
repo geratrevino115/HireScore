@@ -52,3 +52,27 @@ export async function createVacancy(vacancyData) {
   }
   return response.json();
 }
+
+/**
+ * Envía el CV y el audio al backend para su procesamiento.
+ * @param {File} cvFile - Archivo del CV (PDF, DOC, DOCX)
+ * @param {File} audioFile - Archivo de audio (audio/*)
+ * @returns {Promise<object>} Respuesta del servidor en formato JSON.
+ */
+export async function uploadCVandAudio(cvFile, audioFile, candidateId) {
+  const formData = new FormData();
+  formData.append("cv", cvFile);
+  formData.append("audio", audioFile);
+  formData.append("candidate_id", candidateId);
+
+  const response = await fetch(`${API_BASE_URL}/upload`, {
+    method: "POST",
+    body: formData
+  });
+  
+  if (!response.ok) {
+    throw new Error("Error al subir CV y audio");
+  }
+  
+  return response.json();
+}
