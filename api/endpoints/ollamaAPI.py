@@ -14,8 +14,7 @@ class PromptRequest(BaseModel):
     model: str = "llama3.2"  # Modelo por defecto
     context: str = "Instrucciones: Responde de forma concisa y precisa."  # Contexto por defecto
     prompt: str = "Buenos dias"  # Prompt por defecto
-    keypoints: str = "Por favor, organiza la respuesta en un JSON con las siguientes claves:\n - resumen\n - experiencia_tecnica\n- proyectos_relevantes\n- educacion\n - certificaciones\n - sistema_categorizacion_skills\nAsegúrate de que la respuesta sea un JSON válido. limitate a unicamente contestar con el archivo json"  # Puntos clave para el modelo
-
+    
 # URL del servidor de Ollama (por defecto corre en localhost)
 OLLAMA_URL = "http://localhost:11434/api/generate"
 
@@ -80,7 +79,9 @@ async def generate_text(request: PromptRequest):
     Recibe un prompt junto con un contexto y genera una respuesta usando Ollama de los keypoints de los cvs.
     """
     # Combinar el contexto y el prompt
-    combined_prompt = f"{request.keypoints}\n{request.prompt}"
+    keypoints: str = "Por favor, organiza la respuesta en un JSON con las siguientes claves: -datos_personales - resumen - experiencia_tecnica - proyectos_relevantes - educacion - certificaciones - sistema_categorizacion_skills, Limitate a unicamente contestar con el archivo json"  # Puntos clave para el modelo
+
+    combined_prompt = f"{keypoints}\n{request.prompt}"
     payload = {
         "model": request.model,
         "prompt": combined_prompt,
