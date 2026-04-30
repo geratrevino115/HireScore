@@ -31,7 +31,8 @@ def transcribir_con_identificacion(ruta_archivo, modelo_whisper="base", num_habl
     audio = AudioSegment.from_file(ruta_archivo)
     audio = audio.set_channels(1)
     audio = audio.set_frame_rate(16000)
-    temp_path = "interview_processor/outputs/temp_audio.wav"
+    temp_path = "handlers/interview/outputs/temp_audio.wav"
+    os.makedirs("handlers/interview/outputs", exist_ok=True)
     audio.export(temp_path, format="wav")
     
     print("Transcribiendo audio...")
@@ -107,7 +108,7 @@ def guardar_transcripcion_sqlite(segmentos, ruta_archivo):
     """
     Guarda la transcripción con identificación de hablantes en una base de datos SQLite.
     """
-    db_path = f"interview_processor/outputs/{os.path.splitext(os.path.basename(ruta_archivo))[0]}.db"
+    db_path = f"handlers/interview/outputs/{os.path.splitext(os.path.basename(ruta_archivo))[0]}.db"
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     
@@ -143,7 +144,7 @@ if __name__ == "__main__":
     try:
         print("=== TRANSCRIPCIÓN DE AUDIO CON IDENTIFICACIÓN DE HABLANTES ===\n")
         
-        ruta_archivo = "interview_processor/uploads/prueba2.mp3"
+        ruta_archivo = "handlers/interview/uploads/prueba2.mp3"
         modelo_whisper = "base"
         num_hablantes = 2
         

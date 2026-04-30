@@ -47,15 +47,17 @@ def analizar_base_datos(db_path):
     
     promedio_sentimiento = calcular_sentimiento_medio(resultados)
     
-    # Guardar resultados en la base de datos
-    cursor.execute('''
-        ALTER TABLE transcripciones ADD COLUMN sentimiento_neg REAL DEFAULT NULL''')
-    cursor.execute('''
-        ALTER TABLE transcripciones ADD COLUMN sentimiento_neu REAL DEFAULT NULL''')
-    cursor.execute('''
-        ALTER TABLE transcripciones ADD COLUMN sentimiento_pos REAL DEFAULT NULL''')
-    cursor.execute('''
-        ALTER TABLE transcripciones ADD COLUMN sentimiento_compound REAL DEFAULT NULL''')
+    # Agregar columnas de sentimiento si no existen
+    columnas_nuevas = [
+        ("sentimiento_neg", "REAL"),
+        ("sentimiento_neu", "REAL"),
+        ("sentimiento_pos", "REAL"),
+        ("sentimiento_compound", "REAL"),
+    ]
+    columnas_existentes = {row[1] for row in cursor.execute("PRAGMA table_info(transcripciones)")}
+    for nombre, tipo in columnas_nuevas:
+        if nombre not in columnas_existentes:
+            cursor.execute(f"ALTER TABLE transcripciones ADD COLUMN {nombre} {tipo} DEFAULT NULL")
     
     for (id_fila, texto), sentimiento in zip(filas, resultados):
         cursor.execute('''

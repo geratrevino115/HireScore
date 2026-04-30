@@ -74,7 +74,7 @@ async def generate_text_stream(request: PromptRequest):
 
 
 @router.post("/generate_keypoints", summary="", response_description="")
-async def generate_text(request: PromptRequest):
+async def generate_keypoints(request: PromptRequest):
     """
     Recibe un prompt junto con un contexto y genera una respuesta usando Ollama de los keypoints de los cvs.
     """
