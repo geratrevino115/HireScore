@@ -1,10 +1,14 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
 from db.database import get_db
-from api.schemas import VacanteCreate, VacanteRead, VacanteUpdateRequisitos
-from db.crud import create_vacante, get_vacantes, get_vacante, update_vacante_requisitos
+from api.schemas import VacanteCreate, VacanteRead, VacanteUpdateRequisitos, CandidatoRanking
+from db.crud import create_vacante, get_vacantes, get_vacante, update_vacante_requisitos, get_ranking_por_vacante
+from handlers.cvs.parsers.cv_reader import extract_text
+import os, uuid, shutil
 
 router = APIRouter(prefix="/vacancies", tags=["Vacantes"])
+
+REQ_FOLDER = "data/req_data"
 
 
 @router.post("/", response_model=VacanteRead)
@@ -31,3 +35,49 @@ async def set_requisitos(vacante_id: int, body: VacanteUpdateRequisitos, db: Asy
     if not vacante:
         raise HTTPException(status_code=404, detail="Vacante no encontrada")
     return vacante
+
+
+@router.post("/{vacante_id}/requisitos/from-file", response_model=VacanteRead)
+async def set_requisitos_from_file(
+    vacante_id: int,
+    file: UploadFile = File(...),
+    db: AsyncSession = Depends(get_db),
+):
+    ext = os.path.splitext(file.filename)[1].lower()
+    if ext not in (".pdf", ".docx"):
+        raise HTTPException(status_code=400, detail="Solo se aceptan archivos PDF o DOCX")
+
+    os.makedirs(REQ_FOLDER, exist_ok=True)
+    path = os.path.join(REQ_FOLDER, f"{uuid.uuid4()}{ext}")
+    with open(path, "wb") as f:
+        shutil.copyfileobj(file.file, f)
+
+    try:
+        texto = extract_text(path)
+    except Exception as e:
+        raise HTTPException(status_code=422, detail=f"No se pudo leer el archivo: {e}")
+
+    vacante = await update_vacante_requisitos(db, vacante_id, texto)
+    if not vacante:
+        raise HTTPException(status_code=404, detail="Vacante no encontrada")
+    return vacante
+
+
+@router.get("/{vacante_id}/ranking", response_model=list[CandidatoRanking])
+async def ranking_candidatos(vacante_id: int, db: AsyncSession = Depends(get_db)):
+    vacante = await get_vacante(db, vacante_id)
+    if not vacante:
+        raise HTTPException(status_code=404, detail="Vacante no encontrada")
+
+    rows = await get_ranking_por_vacante(db, vacante_id)
+    return [
+        CandidatoRanking(
+            candidato_id=analisis.candidato_id,
+            nombre=candidato.nombre,
+            puntaje_total=analisis.puntaje_total,
+            sentimiento_compound=analisis.sentimiento_compound,
+            analisis_id=analisis.id,
+            analizado_en=analisis.analizado_en,
+        )
+        for analisis, candidato in rows
+    ]

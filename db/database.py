@@ -1,8 +1,6 @@
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker, declarative_base
-
-# URL de la base de datos (sin contraseña)
-DATABASE_URL = "postgresql+asyncpg://postgres@localhost:5432/hirescore"
+from api.config import DATABASE_URL
 
 # Crear el motor de base de datos
 engine = create_async_engine(DATABASE_URL, echo=True)

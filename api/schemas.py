@@ -52,3 +52,19 @@ class AnalisisRead(BaseModel):
     analizado_en: datetime
 
     model_config = {"from_attributes": True}
+
+
+class JobStatus(BaseModel):
+    job_id: str
+    status: str  # "procesando" | "completado" | "error"
+    resultado: Optional[AnalisisRead] = None
+    error: Optional[str] = None
+
+
+class CandidatoRanking(BaseModel):
+    candidato_id: int
+    nombre: str
+    puntaje_total: int
+    sentimiento_compound: Optional[float] = None
+    analisis_id: int
+    analizado_en: datetime

@@ -1,8 +1,7 @@
 import re
 import json
 import requests
-
-OLLAMA_URL = "http://localhost:11434/api/generate"
+from api.config import OLLAMA_URL, OLLAMA_MODEL as DEFAULT_MODEL
 
 PROMPT_TEMPLATE = """Eres un evaluador experto de candidatos. Compara el siguiente CV estructurado con los requisitos del puesto y genera una evaluacion objetiva.
 
@@ -34,7 +33,9 @@ FALLBACK = {
 }
 
 
-def calcular_score(cv_json: dict, requisitos_texto: str, modelo: str = "llama3.2") -> dict:
+def calcular_score(cv_json: dict, requisitos_texto: str, modelo: str = None) -> dict:
+    if modelo is None:
+        modelo = DEFAULT_MODEL
     """
     Compara un CV estructurado (JSON de Ollama) contra requisitos de vacante.
     Devuelve: {puntaje_total: int, desglose: [{categoria, puntaje, comentario}]}

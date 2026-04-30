@@ -1,4 +1,3 @@
-# api/enddpoints/ollamaAPI.py
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
@@ -6,17 +5,14 @@ import requests
 import os
 from typing import AsyncGenerator
 import json
+from api.config import OLLAMA_URL, OLLAMA_MODEL
 
 router = APIRouter(tags=["Ollama"])
 
-# Modelo de datos para la petición, con un campo "context" adicional
 class PromptRequest(BaseModel):
-    model: str = "llama3.2"  # Modelo por defecto
-    context: str = "Instrucciones: Responde de forma concisa y precisa."  # Contexto por defecto
-    prompt: str = "Buenos dias"  # Prompt por defecto
-    
-# URL del servidor de Ollama (por defecto corre en localhost)
-OLLAMA_URL = "http://localhost:11434/api/generate"
+    model: str = OLLAMA_MODEL
+    context: str = "Instrucciones: Responde de forma concisa y precisa."
+    prompt: str = "Buenos dias"
 
 @router.post("/generate", summary="Genera texto sin streaming", response_description="Respuesta de Ollama sin streaming")
 async def generate_text(request: PromptRequest):

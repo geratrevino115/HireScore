@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from db.database import get_db
 from api.schemas import CandidatoCreate, CandidatoRead
-from db.crud import create_candidato, get_candidatos, get_candidato
+from db.crud import create_candidato, get_candidatos, get_candidato, search_candidatos
 
 router = APIRouter(prefix="/candidates", tags=["Candidatos"])
 
@@ -13,7 +13,12 @@ async def add_candidato(candidato: CandidatoCreate, db: AsyncSession = Depends(g
 
 
 @router.get("/", response_model=list[CandidatoRead])
-async def list_candidatos(db: AsyncSession = Depends(get_db)):
+async def list_candidatos(
+    nombre: str = Query(None, description="Filtrar por nombre (búsqueda parcial)"),
+    db: AsyncSession = Depends(get_db),
+):
+    if nombre:
+        return await search_candidatos(db, nombre)
     return await get_candidatos(db)
 
 

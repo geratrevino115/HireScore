@@ -1,5 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from sqlalchemy import desc
 from db.models import Candidato, Vacante, Analisis
 
 
@@ -71,3 +72,18 @@ async def get_analisis_por_vacante(db: AsyncSession, vacante_id: int):
 async def get_analisis(db: AsyncSession, skip: int = 0, limit: int = 100):
     result = await db.execute(select(Analisis).offset(skip).limit(limit))
     return result.scalars().all()
+
+async def search_candidatos(db: AsyncSession, nombre: str):
+    result = await db.execute(
+        select(Candidato).where(Candidato.nombre.ilike(f"%{nombre}%"))
+    )
+    return result.scalars().all()
+
+async def get_ranking_por_vacante(db: AsyncSession, vacante_id: int):
+    result = await db.execute(
+        select(Analisis, Candidato)
+        .join(Candidato, Analisis.candidato_id == Candidato.id)
+        .where(Analisis.vacante_id == vacante_id)
+        .order_by(desc(Analisis.puntaje_total))
+    )
+    return result.all()
