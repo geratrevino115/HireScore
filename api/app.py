@@ -1,16 +1,17 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException, Form, Depends
-from db.database import init_db
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from api.endpoints import vacancies, analyses, ollamaAPI, uploads  # Importar desde endpoints
-import os
-import shutil
-from db.crud import create_upload_record
-from db.database import get_db 
-from sqlalchemy.ext.asyncio import AsyncSession
+from db.database import init_db
+from api.endpoints import vacancies, analyses, ollamaAPI, uploads, candidates
 
-app = FastAPI()
 
-# Configurar CORS
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await init_db()
+    yield
+
+app = FastAPI(lifespan=lifespan)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -19,13 +20,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Cargar los routers
 app.include_router(vacancies.router)
 app.include_router(analyses.router)
 app.include_router(ollamaAPI.router)
-app.include_router(uploads.router)  # Puedes asignar un prefijo si lo deseas
-
-
-@app.on_event("startup")
-async def on_startup():
-    await init_db()
+app.include_router(uploads.router)
+app.include_router(candidates.router)

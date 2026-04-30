@@ -65,3 +65,24 @@ async def upload_requisitos(file: UploadFile = File(...)):
     allowed_requisitos_extensions = [".pdf", ".docx"]
     unique_name, file_path = save_file(file, REQUISITOS_UPLOAD_FOLDER, allowed_requisitos_extensions)
     return {"mensaje": "Archivo de requisitos subido correctamente", "nombre": unique_name, "ruta": file_path}
+
+
+@router.post("/upload")
+async def upload_cv_and_audio(
+    cv: UploadFile = File(...),
+    audio: UploadFile = File(None),
+):
+    """
+    Endpoint unificado: recibe CV (obligatorio) y audio (opcional) en un solo request.
+    Compatible con el frontend del dashboard.
+    """
+    allowed_cv = [".pdf", ".docx"]
+    allowed_audio = [".wav", ".mp3", ".ogg", ".m4a", ".flac"]
+
+    cv_name, _ = save_file(cv, CV_UPLOAD_FOLDER, allowed_cv)
+
+    audio_name = None
+    if audio and audio.filename:
+        audio_name, _ = save_file(audio, AUDIO_UPLOAD_FOLDER, allowed_audio)
+
+    return {"cv_filename": cv_name, "audio_filename": audio_name}

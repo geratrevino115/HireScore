@@ -1,78 +1,85 @@
-// js/api.js
 export const API_BASE_URL = "http://localhost:8000";
 
-/**
- * Envía datos de análisis al backend.
- */
-export async function createAnalysis(analysisData) {
-  const response = await fetch(`${API_BASE_URL}/analyses/`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(analysisData)
-  });
+async function apiFetch(url, options = {}) {
+  const response = await fetch(`${API_BASE_URL}${url}`, options);
   if (!response.ok) {
-    throw new Error("Error al guardar el análisis");
+    const detail = await response.text();
+    throw new Error(detail || `Error ${response.status}`);
   }
   return response.json();
 }
 
-/**
- * Obtiene todos los análisis.
- */
-export async function getAnalyses() {
-  const response = await fetch(`${API_BASE_URL}/analyses/`);
-  if (!response.ok) {
-    throw new Error("Error al obtener análisis");
-  }
-  return response.json();
-}
-
-/**
- * Obtiene todas las vacantes.
- */
+// --- Vacantes ---
 export async function getVacancies() {
-  const response = await fetch(`${API_BASE_URL}/vacancies/`);
-  if (!response.ok) {
-    throw new Error("Error al obtener vacantes");
-  }
-  return response.json();
+  return apiFetch("/vacancies/");
 }
 
-/**
- * Crea una nueva vacante.
- */
-export async function createVacancy(vacancyData) {
-  const response = await fetch(`${API_BASE_URL}/vacancies/`, {
+export async function createVacancy(data) {
+  return apiFetch("/vacancies/", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(vacancyData)
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateVacanteRequisitos(vacanteId, requisitosTexto) {
+  return apiFetch(`/vacancies/${vacanteId}/requisitos`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ requisitos_texto: requisitosTexto }),
+  });
+}
+
+// --- Candidatos ---
+export async function createCandidato(nombre) {
+  return apiFetch("/candidates/", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ nombre }),
+  });
+}
+
+export async function getCandidatos() {
+  return apiFetch("/candidates/");
+}
+
+// --- Análisis ---
+export async function getAnalyses() {
+  return apiFetch("/analyses/");
+}
+
+export async function getAnalisesPorVacante(vacanteId) {
+  return apiFetch(`/analyses/vacante/${vacanteId}`);
+}
+
+export async function procesarAnalisis(cvFile, audioFile, candidatoId, vacanteId) {
+  const formData = new FormData();
+  formData.append("cv_file", cvFile);
+  if (audioFile) formData.append("audio_file", audioFile);
+  formData.append("candidato_id", candidatoId);
+  formData.append("vacante_id", vacanteId);
+
+  const response = await fetch(`${API_BASE_URL}/analyses/procesar`, {
+    method: "POST",
+    body: formData,
   });
   if (!response.ok) {
-    throw new Error("Error al crear vacante");
+    const detail = await response.text();
+    throw new Error(detail || `Error ${response.status}`);
   }
   return response.json();
 }
 
-/**
- * Envía el CV y el audio al backend para su procesamiento.
- * @param {File} cvFile - Archivo del CV (PDF, DOC, DOCX)
- * @param {File} audioFile - Archivo de audio (audio/*)
- * @returns {Promise<object>} Respuesta del servidor en formato JSON.
- */
-export async function uploadCVandAudio(cvFile, audioFile, candidateId) {
+// --- Upload unificado ---
+export async function uploadCVandAudio(cvFile, audioFile) {
   const formData = new FormData();
   formData.append("cv", cvFile);
-  formData.append("audio", audioFile);
-  formData.append("candidate_id", candidateId);
+  if (audioFile) formData.append("audio", audioFile);
 
   const response = await fetch(`${API_BASE_URL}/upload`, {
     method: "POST",
-    body: formData
+    body: formData,
   });
-  
-  if (!response.ok) {
-    throw new Error("Error al subir CV y audio");
-  }
-  
+  if (!response.ok) throw new Error("Error al subir archivos");
   return response.json();
 }
