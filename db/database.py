@@ -16,7 +16,32 @@ async def get_db():
     async with AsyncSessionLocal() as session:
         yield session
 
+# Migraciones livianas idempotentes para columnas nuevas. Mientras no usemos
+# Alembic, esto evita que un DB existente quede sin columnas tras un deploy.
+_COLUMNAS_NUEVAS = [
+    ("vacantes", "requisitos_estructurados_json", "JSONB"),
+    ("vacantes", "requisitos_texto_hash", "VARCHAR(64)"),
+    ("vacantes", "pesos_json", "JSONB"),
+    ("analisis", "cv_estructurado_json", "JSONB"),
+    ("analisis", "requisitos_snapshot_json", "JSONB"),
+    ("analisis", "soft_skills_json", "JSONB"),
+    ("analisis", "features_crudos_json", "JSONB"),
+    ("analisis", "pesos_aplicados_json", "JSONB"),
+    ("analisis", "skills_match", "JSONB"),
+    ("analisis", "skills_faltantes", "JSONB"),
+]
+
+
+async def _ensure_columns(conn):
+    from sqlalchemy import text
+    for tabla, columna, tipo in _COLUMNAS_NUEVAS:
+        await conn.execute(
+            text(f'ALTER TABLE {tabla} ADD COLUMN IF NOT EXISTS {columna} {tipo}')
+        )
+
+
 # Inicializar la base de datos al iniciar la app
 async def init_db():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        await _ensure_columns(conn)
