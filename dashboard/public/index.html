@@ -1,30 +1,578 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Dashboard de Vacantes</title>
-    <!-- Incluimos Chart.js desde CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <div id="dashboard">
-      <!-- Menú lateral -->
-      <div id="sidebar">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HireScore — Tester</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      line-height: 1.5;
+    }
+    header {
+      background: #1e293b;
+      padding: 16px 24px;
+      border-bottom: 1px solid #334155;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    header h1 { margin: 0; font-size: 1.25rem; }
+    .health { font-size: 0.85rem; padding: 4px 10px; border-radius: 4px; }
+    .health.ok { background: #064e3b; color: #6ee7b7; }
+    .health.bad { background: #7f1d1d; color: #fca5a5; }
+    main { max-width: 1200px; margin: 0 auto; padding: 24px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
+    section {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+    h2 {
+      margin: 0 0 12px;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #94a3b8;
+    }
+    label { display: block; font-size: 0.85rem; margin-top: 8px; color: #cbd5e1; }
+    input, select, textarea, button {
+      font-family: inherit;
+      font-size: 0.9rem;
+      padding: 8px 10px;
+      border-radius: 4px;
+      border: 1px solid #475569;
+      background: #0f172a;
+      color: #e2e8f0;
+      width: 100%;
+    }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: #3b82f6; }
+    textarea { resize: vertical; font-family: ui-monospace, monospace; font-size: 0.8rem; }
+    button {
+      background: #3b82f6;
+      border-color: #3b82f6;
+      color: #fff;
+      cursor: pointer;
+      font-weight: 600;
+      width: auto;
+      margin-top: 12px;
+    }
+    button:hover { background: #2563eb; }
+    button.secondary { background: #475569; border-color: #475569; }
+    button.danger { background: #b91c1c; border-color: #b91c1c; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .row { display: flex; gap: 8px; align-items: end; }
+    .row > * { margin-top: 0; }
+    pre {
+      background: #020617;
+      border: 1px solid #1e293b;
+      border-radius: 4px;
+      padding: 10px;
+      overflow-x: auto;
+      font-size: 0.75rem;
+      max-height: 400px;
+      color: #94a3b8;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    th, td {
+      text-align: left;
+      padding: 6px 8px;
+      border-bottom: 1px solid #334155;
+    }
+    th { color: #94a3b8; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; }
+    .score { font-size: 2rem; font-weight: 700; color: #3b82f6; }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      background: #334155;
+      color: #cbd5e1;
+      margin: 2px;
+    }
+    .badge.match { background: #064e3b; color: #6ee7b7; }
+    .badge.miss { background: #7f1d1d; color: #fca5a5; }
+    .small { font-size: 0.8rem; color: #94a3b8; }
+    .error { background: #7f1d1d; color: #fca5a5; padding: 8px; border-radius: 4px; margin-top: 8px; }
+    .ok { background: #064e3b; color: #6ee7b7; padding: 8px; border-radius: 4px; margin-top: 8px; }
+    .barra {
+      height: 8px;
+      background: #334155;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+    .barra > div { height: 100%; background: #3b82f6; transition: width 0.3s; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>HireScore — Tester</h1>
+    <span id="health" class="health">cargando...</span>
+    <span class="small" id="health-detail"></span>
+  </header>
+
+  <main>
+    <div class="grid">
+
+      <!-- Candidatos -->
+      <section>
+        <h2>Candidatos</h2>
+        <div class="row">
+          <input id="cand-nombre" placeholder="Nombre del candidato" />
+          <button onclick="crearCandidato()">Crear</button>
+        </div>
+        <div id="cand-msg"></div>
+        <table id="cand-tabla">
+          <thead><tr><th>ID</th><th>Nombre</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <button class="secondary" onclick="listarCandidatos()">Refrescar</button>
+      </section>
+
+      <!-- Vacantes -->
+      <section>
         <h2>Vacantes</h2>
-        <ul id="vacancyList"></ul>
-        <button id="addVacancyBtn">Agregar Vacante</button>
-      </div>
-      <!-- Panel principal -->
-      <div id="main-content">
-        <p>Selecciona una vacante para ver los detalles.</p>
-      </div>
+        <label>Titulo</label>
+        <input id="vac-titulo" placeholder="ej: Backend Senior" />
+        <label>Descripcion</label>
+        <input id="vac-desc" />
+        <label>Requisitos (texto)</label>
+        <textarea id="vac-req" rows="4" placeholder="Ej: Python 5+ años, FastAPI, Docker, AWS..."></textarea>
+        <button onclick="crearVacante()">Crear vacante</button>
+        <div id="vac-msg"></div>
+        <table id="vac-tabla">
+          <thead><tr><th>ID</th><th>Titulo</th><th>Pesos</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <button class="secondary" onclick="listarVacantes()">Refrescar</button>
+      </section>
     </div>
 
-    <!-- Módulos JS -->
-    <script type="module" src="../src/components/api.js"></script>
-    <script type="module" src="../src/components/vacantes.js"></script>
-    <script type="module" src="../src/components/dashboard.js"></script>
-  </body>
+    <!-- Pesos custom de vacante -->
+    <section>
+      <h2>Pesos custom de scoring (por vacante)</h2>
+      <p class="small">Los pesos deben sumar ~1.0. Si no configuras, se usa el default global.</p>
+      <div class="row">
+        <div style="flex:1">
+          <label>Vacante ID</label>
+          <input id="pesos-vac-id" type="number" />
+        </div>
+        <button class="secondary" onclick="cargarPesos()">Cargar actuales</button>
+        <button class="danger" onclick="resetPesos()">Reset (default)</button>
+      </div>
+      <div class="grid" style="gap: 8px; margin-top: 10px;">
+        <div><label>Skills obligatorios</label><input id="p-obl" type="number" step="0.05" value="0.35"></div>
+        <div><label>Skills deseables</label><input id="p-des" type="number" step="0.05" value="0.15"></div>
+        <div><label>Experiencia</label><input id="p-exp" type="number" step="0.05" value="0.20"></div>
+        <div><label>Educacion</label><input id="p-edu" type="number" step="0.05" value="0.10"></div>
+        <div><label>Soft skills</label><input id="p-soft" type="number" step="0.05" value="0.15"></div>
+        <div><label>Sentimiento</label><input id="p-sent" type="number" step="0.05" value="0.05"></div>
+      </div>
+      <button onclick="guardarPesos()">Guardar pesos</button>
+      <div id="pesos-msg"></div>
+    </section>
+
+    <!-- Procesar analisis -->
+    <section>
+      <h2>Procesar analisis</h2>
+      <p class="small">Sube un CV (PDF/DOCX) y opcionalmente un audio de entrevista. Devuelve el puntaje completo.</p>
+      <div class="grid" style="gap:12px;">
+        <div>
+          <label>Candidato ID</label>
+          <input id="an-cand" type="number" />
+        </div>
+        <div>
+          <label>Vacante ID</label>
+          <input id="an-vac" type="number" />
+        </div>
+      </div>
+      <label>CV (PDF/DOCX)</label>
+      <input id="an-cv" type="file" accept=".pdf,.docx" />
+      <label>Audio entrevista (opcional)</label>
+      <input id="an-audio" type="file" accept=".wav,.mp3,.m4a,.ogg,.flac" />
+      <button onclick="procesarAnalisis()">Procesar (sincrono)</button>
+      <button class="secondary" onclick="procesarAnalisisAsync()">Procesar (async + polling)</button>
+      <div id="an-msg"></div>
+      <div id="an-resultado"></div>
+    </section>
+
+    <!-- Inspector de analisis existente -->
+    <section>
+      <h2>Inspector de analisis</h2>
+      <div class="row">
+        <div style="flex:1">
+          <label>Analisis ID</label>
+          <input id="ins-id" type="number" />
+        </div>
+        <button onclick="cargarExplicacion()">Ver explicacion</button>
+        <button class="secondary" onclick="cargarCosto()">Ver costo</button>
+      </div>
+      <div id="ins-out"></div>
+    </section>
+
+    <!-- Ranking por vacante -->
+    <section>
+      <h2>Ranking de candidatos por vacante</h2>
+      <div class="row">
+        <div style="flex:1">
+          <label>Vacante ID</label>
+          <input id="rank-vac" type="number" />
+        </div>
+        <button onclick="cargarRanking()">Cargar ranking</button>
+        <button class="secondary" onclick="cargarCostoVacante()">Ver costo total vacante</button>
+      </div>
+      <div id="rank-out"></div>
+    </section>
+  </main>
+
+  <script>
+    // Si la pagina se sirve desde el mismo host (FastAPI mount /app), API_BASE = ""
+    // Si abres el HTML directo desde disco, ajusta:
+    const API_BASE = window.location.pathname.startsWith("/app")
+      ? ""
+      : "http://localhost:8000";
+
+    // ---------- helpers ----------
+    async function api(path, opts = {}) {
+      const url = API_BASE + path;
+      const resp = await fetch(url, opts);
+      const text = await resp.text();
+      let body = null;
+      try { body = text ? JSON.parse(text) : null; } catch { body = text; }
+      if (!resp.ok) throw { status: resp.status, body };
+      return body;
+    }
+
+    function showError(elId, e) {
+      const el = document.getElementById(elId);
+      const detail = e.body && (e.body.detail || JSON.stringify(e.body)) || e.message || e;
+      el.innerHTML = `<div class="error">Error ${e.status || ""}: ${detail}</div>`;
+    }
+
+    function showOk(elId, msg) {
+      document.getElementById(elId).innerHTML = `<div class="ok">${msg}</div>`;
+    }
+
+    function fmtPct(x) { return Math.round((x || 0) * 100) + "%"; }
+
+    // ---------- health ----------
+    async function checkHealth() {
+      try {
+        const h = await api("/health");
+        const ok = h.status === "ok";
+        const tag = document.getElementById("health");
+        tag.className = "health " + (ok ? "ok" : "bad");
+        tag.textContent = h.status;
+        document.getElementById("health-detail").textContent =
+          `db=${h.database ? "ok" : "fail"} | llm=${h.llm.provider}:${h.llm.ok ? "ok" : "fail"}`;
+      } catch (e) {
+        document.getElementById("health").textContent = "error";
+        document.getElementById("health").className = "health bad";
+      }
+    }
+
+    // ---------- candidatos ----------
+    async function crearCandidato() {
+      const nombre = document.getElementById("cand-nombre").value.trim();
+      if (!nombre) return;
+      try {
+        const c = await api("/candidates/", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({nombre}),
+        });
+        showOk("cand-msg", `Creado candidato #${c.id}`);
+        document.getElementById("cand-nombre").value = "";
+        listarCandidatos();
+      } catch (e) { showError("cand-msg", e); }
+    }
+
+    async function listarCandidatos() {
+      try {
+        const list = await api("/candidates/");
+        const tbody = document.querySelector("#cand-tabla tbody");
+        tbody.innerHTML = list.map(c =>
+          `<tr><td>${c.id}</td><td>${c.nombre}</td></tr>`
+        ).join("");
+      } catch (e) { showError("cand-msg", e); }
+    }
+
+    // ---------- vacantes ----------
+    async function crearVacante() {
+      const body = {
+        titulo: document.getElementById("vac-titulo").value.trim(),
+        descripcion: document.getElementById("vac-desc").value.trim() || null,
+        requisitos_texto: document.getElementById("vac-req").value.trim() || null,
+      };
+      if (!body.titulo) return;
+      try {
+        const v = await api("/vacancies/", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify(body),
+        });
+        showOk("vac-msg", `Creada vacante #${v.id}`);
+        document.getElementById("vac-titulo").value = "";
+        document.getElementById("vac-desc").value = "";
+        document.getElementById("vac-req").value = "";
+        listarVacantes();
+      } catch (e) { showError("vac-msg", e); }
+    }
+
+    async function listarVacantes() {
+      try {
+        const list = await api("/vacancies/");
+        const tbody = document.querySelector("#vac-tabla tbody");
+        tbody.innerHTML = list.map(v => {
+          const pesos = v.pesos_json
+            ? `<span class="badge">custom</span>`
+            : `<span class="badge">default</span>`;
+          return `<tr><td>${v.id}</td><td>${v.titulo}</td><td>${pesos}</td></tr>`;
+        }).join("");
+      } catch (e) { showError("vac-msg", e); }
+    }
+
+    // ---------- pesos ----------
+    async function cargarPesos() {
+      const id = document.getElementById("pesos-vac-id").value;
+      if (!id) return;
+      try {
+        const v = await api(`/vacancies/${id}`);
+        const p = v.pesos_json;
+        if (!p) {
+          showOk("pesos-msg", "Esta vacante usa pesos default");
+          return;
+        }
+        document.getElementById("p-obl").value = p.match_skills_obligatorios;
+        document.getElementById("p-des").value = p.match_skills_deseables;
+        document.getElementById("p-exp").value = p.experiencia;
+        document.getElementById("p-edu").value = p.educacion;
+        document.getElementById("p-soft").value = p.soft_skills;
+        document.getElementById("p-sent").value = p.sentimiento;
+        showOk("pesos-msg", "Pesos custom cargados");
+      } catch (e) { showError("pesos-msg", e); }
+    }
+
+    async function guardarPesos() {
+      const id = document.getElementById("pesos-vac-id").value;
+      if (!id) return;
+      const body = {
+        match_skills_obligatorios: parseFloat(document.getElementById("p-obl").value),
+        match_skills_deseables: parseFloat(document.getElementById("p-des").value),
+        experiencia: parseFloat(document.getElementById("p-exp").value),
+        educacion: parseFloat(document.getElementById("p-edu").value),
+        soft_skills: parseFloat(document.getElementById("p-soft").value),
+        sentimiento: parseFloat(document.getElementById("p-sent").value),
+      };
+      try {
+        await api(`/vacancies/${id}/pesos`, {
+          method: "PUT",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify(body),
+        });
+        showOk("pesos-msg", "Pesos guardados");
+        listarVacantes();
+      } catch (e) { showError("pesos-msg", e); }
+    }
+
+    async function resetPesos() {
+      const id = document.getElementById("pesos-vac-id").value;
+      if (!id) return;
+      try {
+        await api(`/vacancies/${id}/pesos`, { method: "DELETE" });
+        showOk("pesos-msg", "Pesos restablecidos a default");
+        listarVacantes();
+      } catch (e) { showError("pesos-msg", e); }
+    }
+
+    // ---------- analisis ----------
+    function buildFormData() {
+      const fd = new FormData();
+      fd.append("candidato_id", document.getElementById("an-cand").value);
+      fd.append("vacante_id", document.getElementById("an-vac").value);
+      const cv = document.getElementById("an-cv").files[0];
+      const audio = document.getElementById("an-audio").files[0];
+      if (cv) fd.append("cv_file", cv);
+      if (audio) fd.append("audio_file", audio);
+      return fd;
+    }
+
+    function renderResultado(r) {
+      const desglose = (r.desglose || []).map(d => `
+        <tr>
+          <td>${d.categoria}</td>
+          <td><strong>${d.puntaje}</strong></td>
+          <td>${d.peso != null ? d.peso.toFixed(2) : "-"}</td>
+          <td>${d.feature != null ? d.feature.toFixed(3) : "-"}</td>
+          <td class="small">${d.comentario || ""}</td>
+        </tr>
+      `).join("");
+      return `
+        <div style="display:flex;align-items:center;gap:20px;margin-top:12px;">
+          <div class="score">${r.puntaje_total}</div>
+          <div class="small">Sentimiento: ${r.sentimiento_compound != null ? r.sentimiento_compound.toFixed(2) : "n/a"} · Analisis #${r.id}</div>
+        </div>
+        <table style="margin-top:12px;">
+          <thead><tr><th>Categoria</th><th>Puntaje</th><th>Peso</th><th>Feature</th><th>Comentario</th></tr></thead>
+          <tbody>${desglose}</tbody>
+        </table>
+      `;
+    }
+
+    async function procesarAnalisis() {
+      document.getElementById("an-msg").innerHTML = '<div class="small">Procesando... esto puede tardar 30-90s con audio.</div>';
+      try {
+        const r = await api("/analyses/procesar", { method: "POST", body: buildFormData() });
+        document.getElementById("an-msg").innerHTML = "";
+        document.getElementById("an-resultado").innerHTML = renderResultado(r);
+        document.getElementById("ins-id").value = r.id;
+      } catch (e) { showError("an-msg", e); }
+    }
+
+    async function procesarAnalisisAsync() {
+      document.getElementById("an-msg").innerHTML = '<div class="small">Encolando job...</div>';
+      try {
+        const job = await api("/analyses/procesar-async", { method: "POST", body: buildFormData() });
+        document.getElementById("an-msg").innerHTML = `<div class="small">Job ${job.job_id} - polling cada 3s...</div>`;
+        const interval = setInterval(async () => {
+          try {
+            const status = await api(`/analyses/job/${job.job_id}`);
+            if (status.status === "completado") {
+              clearInterval(interval);
+              document.getElementById("an-msg").innerHTML = "";
+              document.getElementById("an-resultado").innerHTML = renderResultado(status.resultado);
+              document.getElementById("ins-id").value = status.resultado.id;
+            } else if (status.status === "error") {
+              clearInterval(interval);
+              showError("an-msg", { body: { detail: status.error } });
+            }
+          } catch (e) { clearInterval(interval); showError("an-msg", e); }
+        }, 3000);
+      } catch (e) { showError("an-msg", e); }
+    }
+
+    // ---------- inspector ----------
+    async function cargarExplicacion() {
+      const id = document.getElementById("ins-id").value;
+      if (!id) return;
+      try {
+        const x = await api(`/analyses/${id}/explicacion`);
+        const features = Object.entries(x.features_crudos || {}).map(([k, v]) => `
+          <tr>
+            <td class="small">${k}</td>
+            <td>${(v * 100).toFixed(0)}%</td>
+            <td><div class="barra"><div style="width:${v * 100}%"></div></div></td>
+            <td class="small">peso ${(x.pesos_aplicados[k] || 0).toFixed(2)}</td>
+          </tr>
+        `).join("");
+        const match = (x.skills_match || []).map(s => `<span class="badge match">${s}</span>`).join("") || '<span class="small">ninguno</span>';
+        const miss = (x.skills_faltantes || []).map(s => `<span class="badge miss">${s}</span>`).join("") || '<span class="small">ninguno</span>';
+        const soft = x.soft_skills ? `
+          <h3>Soft skills (con evidencias)</h3>
+          ${["comunicacion", "resolucion_problemas", "trabajo_equipo"].map(d => {
+            const dim = x.soft_skills[d];
+            if (!dim) return "";
+            const ev = (dim.evidencias || []).map(e => `<li>"${e}"</li>`).join("");
+            return `<div style="margin-top:8px;"><strong>${d}</strong> — ${dim.puntaje}/100<br>
+              <span class="small">${dim.justificacion || ""}</span>
+              <ul class="small">${ev}</ul></div>`;
+          }).join("")}
+        ` : "";
+        document.getElementById("ins-out").innerHTML = `
+          <div class="score">${x.puntaje_total}</div>
+          <h3>Features crudos × pesos</h3>
+          <table>${features}</table>
+          <h3>Skills cubiertos</h3><div>${match}</div>
+          <h3>Skills faltantes</h3><div>${miss}</div>
+          ${soft}
+          <div class="small" style="margin-top:16px;font-style:italic;">${x.disclaimer || ""}</div>
+          <details style="margin-top:12px;">
+            <summary class="small">Ver JSON crudo</summary>
+            <pre>${JSON.stringify(x, null, 2)}</pre>
+          </details>
+        `;
+      } catch (e) { showError("ins-out", e); }
+    }
+
+    async function cargarCosto() {
+      const id = document.getElementById("ins-id").value;
+      if (!id) return;
+      try {
+        const c = await api(`/analyses/${id}/costo`);
+        const filas = c.llamadas.map(l => `
+          <tr>
+            <td>${l.operacion}</td>
+            <td class="small">${l.provider} / ${l.model}</td>
+            <td>${l.tokens_input}</td>
+            <td>${l.tokens_output}</td>
+            <td>${l.tokens_cache_read || 0}</td>
+            <td>${l.duracion_ms.toFixed(0)} ms</td>
+            <td>$${l.costo_usd.toFixed(6)}</td>
+          </tr>
+        `).join("");
+        document.getElementById("ins-out").innerHTML = `
+          <h3>Costo total: <strong>$${c.costo_usd_total.toFixed(6)}</strong> USD</h3>
+          <table>
+            <thead><tr><th>Operacion</th><th>Modelo</th><th>In</th><th>Out</th><th>Cache</th><th>Latencia</th><th>USD</th></tr></thead>
+            <tbody>${filas}</tbody>
+          </table>
+        `;
+      } catch (e) { showError("ins-out", e); }
+    }
+
+    // ---------- ranking ----------
+    async function cargarRanking() {
+      const id = document.getElementById("rank-vac").value;
+      if (!id) return;
+      try {
+        const list = await api(`/vacancies/${id}/ranking`);
+        if (!list.length) {
+          document.getElementById("rank-out").innerHTML = '<div class="small">Sin candidatos analizados.</div>';
+          return;
+        }
+        const filas = list.map((r, i) => `
+          <tr>
+            <td>${i + 1}</td>
+            <td>${r.nombre}</td>
+            <td><strong>${r.puntaje_total}</strong></td>
+            <td>${r.sentimiento_compound != null ? r.sentimiento_compound.toFixed(2) : "n/a"}</td>
+            <td><a href="#" onclick="document.getElementById('ins-id').value=${r.analisis_id};cargarExplicacion();return false;">#${r.analisis_id}</a></td>
+          </tr>
+        `).join("");
+        document.getElementById("rank-out").innerHTML = `
+          <table>
+            <thead><tr><th>#</th><th>Candidato</th><th>Puntaje</th><th>Sentimiento</th><th>Analisis</th></tr></thead>
+            <tbody>${filas}</tbody>
+          </table>
+        `;
+      } catch (e) { showError("rank-out", e); }
+    }
+
+    async function cargarCostoVacante() {
+      const id = document.getElementById("rank-vac").value;
+      if (!id) return;
+      try {
+        const c = await api(`/vacancies/${id}/costo-total`);
+        document.getElementById("rank-out").innerHTML = `
+          <h3>Costo acumulado vacante #${c.vacante_id}</h3>
+          <p><strong>$${c.costo_usd.toFixed(6)} USD</strong> en ${c.llamadas_llm} llamadas al LLM.</p>
+        `;
+      } catch (e) { showError("rank-out", e); }
+    }
+
+    // ---------- init ----------
+    checkHealth();
+    listarCandidatos();
+    listarVacantes();
+    setInterval(checkHealth, 30000);
+  </script>
+</body>
 </html>
