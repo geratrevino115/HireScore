@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
 from db.database import get_db
-from api.schemas import VacanteCreate, VacanteRead, VacanteUpdateRequisitos, CandidatoRanking
-from db.crud import create_vacante, get_vacantes, get_vacante, update_vacante_requisitos, get_ranking_por_vacante
+from api.schemas import VacanteCreate, VacanteRead, VacanteUpdateRequisitos, VacanteUpdatePesos, CandidatoRanking, CostoVacanteResumen
+from db.crud import create_vacante, get_vacantes, get_vacante, update_vacante_requisitos, update_vacante_pesos, get_ranking_por_vacante, get_costo_total_vacante
+from handlers.scoring.weights import PesosScoring
 from handlers.cvs.parsers.cv_reader import extract_text
 import os, uuid, shutil
 
@@ -61,6 +62,37 @@ async def set_requisitos_from_file(
     if not vacante:
         raise HTTPException(status_code=404, detail="Vacante no encontrada")
     return vacante
+
+
+@router.put("/{vacante_id}/pesos", response_model=VacanteRead)
+async def set_pesos(vacante_id: int, body: VacanteUpdatePesos, db: AsyncSession = Depends(get_db)):
+    """Configura pesos custom del scoring para esta vacante. Deben sumar ~1.0."""
+    try:
+        pesos = PesosScoring(**body.model_dump())
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    vacante = await update_vacante_pesos(db, vacante_id, pesos.as_dict())
+    if not vacante:
+        raise HTTPException(status_code=404, detail="Vacante no encontrada")
+    return vacante
+
+
+@router.delete("/{vacante_id}/pesos", response_model=VacanteRead)
+async def reset_pesos(vacante_id: int, db: AsyncSession = Depends(get_db)):
+    """Limpia los pesos custom; vuelve a usar PESOS_DEFAULT."""
+    vacante = await update_vacante_pesos(db, vacante_id, None)
+    if not vacante:
+        raise HTTPException(status_code=404, detail="Vacante no encontrada")
+    return vacante
+
+
+@router.get("/{vacante_id}/costo-total", response_model=CostoVacanteResumen)
+async def costo_total_vacante(vacante_id: int, db: AsyncSession = Depends(get_db)):
+    vacante = await get_vacante(db, vacante_id)
+    if not vacante:
+        raise HTTPException(status_code=404, detail="Vacante no encontrada")
+    resumen = await get_costo_total_vacante(db, vacante_id)
+    return CostoVacanteResumen(vacante_id=vacante_id, **resumen)
 
 
 @router.get("/{vacante_id}/ranking", response_model=list[CandidatoRanking])
