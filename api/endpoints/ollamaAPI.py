@@ -69,10 +69,18 @@ async def generate_text_stream(request: PromptRequest):
     )
 
 
-@router.post("/generate_keypoints", summary="", response_description="")
+@router.post(
+    "/generate_keypoints",
+    summary="[DEPRECATED] Extrae keypoints de un CV via Ollama directo",
+    response_description="JSON con keypoints",
+    deprecated=True,
+)
 async def generate_keypoints(request: PromptRequest):
     """
-    Recibe un prompt junto con un contexto y genera una respuesta usando Ollama de los keypoints de los cvs.
+    DEPRECATED: usar `POST /analyses/procesar` que delega al LLMProvider configurado
+    (Ollama o Claude) y devuelve resultado validado contra Pydantic.
+
+    Este endpoint queda solo por compatibilidad con clientes existentes y se removera.
     """
     # Combinar el contexto y el prompt
     keypoints: str = "Por favor, organiza la respuesta en un JSON con las siguientes claves: -datos_personales - resumen - experiencia_tecnica - proyectos_relevantes - educacion - certificaciones - sistema_categorizacion_skills, Limitate a unicamente contestar con el archivo json"  # Puntos clave para el modelo

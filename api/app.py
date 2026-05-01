@@ -1,11 +1,10 @@
-import requests
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from db.database import init_db, engine
 from api.endpoints import vacancies, analyses, ollamaAPI, uploads, candidates
-from api.config import OLLAMA_URL
+from handlers.llm import get_llm_provider
 
 
 @asynccontextmanager
@@ -42,15 +41,17 @@ async def health_check():
     except Exception:
         pass
 
-    ollama_ok = False
+    llm_ok = False
+    llm_name = "desconocido"
     try:
-        resp = requests.get(OLLAMA_URL.replace("/api/generate", ""), timeout=3)
-        ollama_ok = resp.status_code == 200
+        provider = get_llm_provider()
+        llm_name = provider.name
+        llm_ok = await provider.health()
     except Exception:
         pass
 
-    status = "ok" if db_ok and ollama_ok else "degradado"
-    return {"status": status, "database": db_ok, "ollama": ollama_ok}
+    status = "ok" if db_ok and llm_ok else "degradado"
+    return {"status": status, "database": db_ok, "llm": {"provider": llm_name, "ok": llm_ok}}
 
 
 # Servir el dashboard en /app
