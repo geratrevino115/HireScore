@@ -1,0 +1,3 @@
+cv_path,requisitos_path,puntaje_humano,nota
+data/cv_data/ejemplo1.pdf,data/req_data/backend_senior.txt,85,Buen match general
+data/cv_data/ejemplo2.pdf,data/req_data/backend_senior.txt,55,Le faltan skills cloud
