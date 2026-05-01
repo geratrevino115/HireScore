@@ -1,7 +1,6 @@
 import os
 import torch
 import whisper
-import sqlite3
 from pyannote.audio.pipelines.speaker_verification import PretrainedSpeakerEmbedding
 from pyannote.audio import Audio
 from pyannote.core import Segment
@@ -104,35 +103,6 @@ def transcribir_con_identificacion(ruta_archivo, modelo_whisper="base", num_habl
         
     return resultado_final
 
-def guardar_transcripcion_sqlite(segmentos, ruta_archivo):
-    """
-    Guarda la transcripción con identificación de hablantes en una base de datos SQLite.
-    """
-    db_path = f"handlers/interview/outputs/{os.path.splitext(os.path.basename(ruta_archivo))[0]}.db"
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-    
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS transcripciones (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            archivo TEXT,
-            inicio TEXT,
-            fin TEXT,
-            hablante INTEGER,
-            texto TEXT
-        )
-    ''')
-    
-    for seg in segmentos:
-        cursor.execute('''
-            INSERT INTO transcripciones (archivo, inicio, fin, hablante, texto)
-            VALUES (?, ?, ?, ?, ?)
-        ''', (ruta_archivo, formatear_tiempo(seg['inicio']), formatear_tiempo(seg['fin']), int(seg['hablante']), seg['texto']))
-    
-    conn.commit()
-    conn.close()
-    print(f"\nTranscripción guardada en la base de datos {db_path}")
-
 def formatear_tiempo(segundos):
     """Convierte segundos a formato HH:MM:SS.MS"""
     horas = int(segundos // 3600)
@@ -141,26 +111,7 @@ def formatear_tiempo(segundos):
     return f"{horas:02d}:{minutos:02d}:{segs:06.3f}"
 
 if __name__ == "__main__":
-    try:
-        print("=== TRANSCRIPCIÓN DE AUDIO CON IDENTIFICACIÓN DE HABLANTES ===\n")
-        
-        ruta_archivo = "handlers/interview/uploads/prueba2.mp3"
-        modelo_whisper = "base"
-        num_hablantes = 2
-        
-        print("\nProcesando con parámetros:")
-        print(f"- Archivo: {ruta_archivo}")
-        print(f"- Modelo: {modelo_whisper}")
-        print(f"- Número de hablantes: {'Automático' if num_hablantes is None else num_hablantes}")
-        
-        segmentos = transcribir_con_identificacion(ruta_archivo, modelo_whisper, num_hablantes)
-        
-        if segmentos:
-            guardar_transcripcion_sqlite(segmentos, ruta_archivo)
-        else:
-            print("No se pudieron obtener resultados de la transcripción.")
-            
-    except KeyboardInterrupt:
-        print("\nProceso interrumpido por el usuario.")
-    except Exception as e:
-        print(f"\nError inesperado: {str(e)}")
+    print("=== TRANSCRIPCION DE AUDIO ===")
+    ruta_archivo = "handlers/interview/uploads/prueba2.mp3"
+    segmentos = transcribir_con_identificacion(ruta_archivo, "base", 2)
+    print(f"Segmentos: {len(segmentos)}")
