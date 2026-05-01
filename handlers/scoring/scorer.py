@@ -1,82 +1,129 @@
-import re
-import json
-import requests
-from api.config import OLLAMA_URL, OLLAMA_MODEL as DEFAULT_MODEL
+"""Scoring deterministico.
 
-PROMPT_TEMPLATE = """Eres un evaluador experto de candidatos. Compara el siguiente CV estructurado con los requisitos del puesto y genera una evaluacion objetiva.
+El LLM solo extrae datos; este modulo asigna la nota. Es puro Python sobre
+features normalizados, sin red ni LLM. Reproducible y auditable.
+"""
+from __future__ import annotations
+from typing import Optional
+from pydantic import BaseModel, Field
+from handlers.llm.schemas import (
+    CVEstructurado,
+    RequisitosEstructurados,
+    SoftSkillsResult,
+)
+from handlers.scoring.weights import PesosScoring, PESOS_DEFAULT
+from handlers.scoring.features import extraer_todos
+from handlers.scoring import taxonomy
+from handlers.observability import audit_scoring
 
-CV DEL CANDIDATO (JSON estructurado):
-{cv_json}
 
-REQUISITOS DEL PUESTO:
-{requisitos_texto}
-
-Responde UNICAMENTE con un JSON valido con la siguiente estructura, sin texto adicional:
-{{
-  "puntaje_total": <entero del 0 al 100>,
-  "desglose": [
-    {{"categoria": "Experiencia Tecnica", "puntaje": <0-100>, "comentario": "<max 1 oracion>"}},
-    {{"categoria": "Educacion", "puntaje": <0-100>, "comentario": "<max 1 oracion>"}},
-    {{"categoria": "Skills", "puntaje": <0-100>, "comentario": "<max 1 oracion>"}},
-    {{"categoria": "Proyectos", "puntaje": <0-100>, "comentario": "<max 1 oracion>"}}
-  ]
-}}"""
-
-FALLBACK = {
-    "puntaje_total": 0,
-    "desglose": [
-        {"categoria": "Experiencia Tecnica", "puntaje": 0, "comentario": "Error al procesar"},
-        {"categoria": "Educacion", "puntaje": 0, "comentario": "Error al procesar"},
-        {"categoria": "Skills", "puntaje": 0, "comentario": "Error al procesar"},
-        {"categoria": "Proyectos", "puntaje": 0, "comentario": "Error al procesar"},
-    ],
+_LABELS = {
+    "match_skills_obligatorios": "Skills obligatorios",
+    "match_skills_deseables":    "Skills deseables",
+    "experiencia":               "Experiencia",
+    "educacion":                 "Educacion",
+    "soft_skills":               "Soft skills",
+    "sentimiento":               "Sentimiento entrevista",
 }
 
 
-def calcular_score(cv_json: dict, requisitos_texto: str, modelo: str = None) -> dict:
-    if modelo is None:
-        modelo = DEFAULT_MODEL
-    """
-    Compara un CV estructurado (JSON de Ollama) contra requisitos de vacante.
-    Devuelve: {puntaje_total: int, desglose: [{categoria, puntaje, comentario}]}
-    """
-    if not requisitos_texto or not requisitos_texto.strip():
-        requisitos_texto = "No se especificaron requisitos para esta vacante."
+class CategoriaDesglose(BaseModel):
+    categoria: str
+    puntaje: int           # 0-100, contribucion proporcional al peso
+    peso: float            # peso usado
+    feature: float         # valor crudo en [0,1]
+    contribucion: float    # peso * feature, en [0, peso]
+    comentario: Optional[str] = None
 
-    prompt = PROMPT_TEMPLATE.format(
-        cv_json=json.dumps(cv_json, ensure_ascii=False, indent=2),
-        requisitos_texto=requisitos_texto,
-    )
 
-    try:
-        response = requests.post(
-            OLLAMA_URL,
-            json={"model": modelo, "prompt": prompt, "stream": False},
-            timeout=120,
+class ResultadoScoring(BaseModel):
+    puntaje_total: int
+    desglose: list[CategoriaDesglose]
+    features_crudos: dict[str, float]
+    pesos_usados: dict[str, float]
+    skills_match: list[str] = Field(default_factory=list)
+    skills_faltantes: list[str] = Field(default_factory=list)
+
+
+def calcular_score(
+    cv: CVEstructurado,
+    requisitos: RequisitosEstructurados,
+    soft_skills: SoftSkillsResult | None = None,
+    sentimiento_compound: float | None = None,
+    pesos: PesosScoring | None = None,
+    candidato_id: int | None = None,
+    vacante_id: int | None = None,
+) -> ResultadoScoring:
+    pesos = pesos or PESOS_DEFAULT
+    pesos_dict = pesos.as_dict()
+
+    features = extraer_todos(cv, requisitos, soft_skills, sentimiento_compound)
+
+    desglose: list[CategoriaDesglose] = []
+    total = 0.0
+    for clave, peso in pesos_dict.items():
+        feat = features[clave]
+        contribucion = peso * feat
+        total += contribucion
+        desglose.append(
+            CategoriaDesglose(
+                categoria=_LABELS[clave],
+                puntaje=round(feat * 100),
+                peso=peso,
+                feature=feat,
+                contribucion=contribucion,
+                comentario=_comentario(clave, feat, soft_skills),
+            )
         )
-        response.raise_for_status()
-        texto = response.json().get("response", "")
-    except Exception:
-        return FALLBACK
 
-    # Extraer bloque JSON de la respuesta (Ollama puede incluir texto extra)
-    match = re.search(r'\{.*\}', texto, re.DOTALL)
-    if not match:
-        return FALLBACK
-
-    try:
-        resultado = json.loads(match.group())
-    except json.JSONDecodeError:
-        return FALLBACK
-
-    # Validar estructura mínima
-    puntaje = resultado.get("puntaje_total", 0)
-    desglose = resultado.get("desglose", [])
-
-    if not isinstance(puntaje, (int, float)) or not isinstance(desglose, list):
-        return FALLBACK
-
-    return {
-        "puntaje_total": max(0, min(100, int(puntaje))),
-        "desglose": desglose,
+    cv_canon = {
+        c for s in cv.skills
+        for c in [s.nombre_normalizado or taxonomy.normalizar(s.nombre)] if c
     }
+    req_canon = {
+        c for r in requisitos.skills_requeridos
+        for c in [r.nombre_normalizado or taxonomy.normalizar(r.nombre)] if c
+    }
+    match = sorted(cv_canon & req_canon)
+    faltantes = sorted(req_canon - cv_canon)
+
+    resultado = ResultadoScoring(
+        puntaje_total=max(0, min(100, round(total * 100))),
+        desglose=desglose,
+        features_crudos=features,
+        pesos_usados=pesos_dict,
+        skills_match=match,
+        skills_faltantes=faltantes,
+    )
+    audit_scoring(
+        candidato_id=candidato_id,
+        vacante_id=vacante_id,
+        puntaje_total=resultado.puntaje_total,
+        pesos=pesos_dict,
+        features=features,
+        skills_match=match,
+        skills_faltantes=faltantes,
+    )
+    return resultado
+
+
+def _comentario(clave: str, feature: float, soft: SoftSkillsResult | None) -> str:
+    pct = round(feature * 100)
+    if clave == "match_skills_obligatorios":
+        if feature >= 0.9:    return "Cumple practicamente todos los skills obligatorios"
+        if feature >= 0.6:    return f"Cumple {pct}% de los skills obligatorios"
+        return f"Solo cumple {pct}% de los skills obligatorios — gap importante"
+    if clave == "match_skills_deseables":
+        return f"Cumple {pct}% de los skills deseables"
+    if clave == "experiencia":
+        if feature >= 1.0:    return "Supera el minimo de años requerido"
+        return f"Tiene {pct}% del minimo de años pedido"
+    if clave == "educacion":
+        if feature >= 1.0:    return "Cumple el nivel educativo minimo"
+        return "No alcanza el nivel educativo minimo"
+    if clave == "soft_skills":
+        if soft is None:      return "Sin entrevista evaluada"
+        return f"Promedio soft skills: {pct}/100"
+    if clave == "sentimiento":
+        return f"Sentimiento normalizado: {pct}/100"
+    return ""
