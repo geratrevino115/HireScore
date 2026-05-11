@@ -8,7 +8,13 @@ from handlers.llm.schemas import (
     CVEstructurado,
     RequisitosEstructurados,
     SoftSkillsResult,
+    VacanteGenerada,
+    GenerarVacanteInputs,
+    GuiaEntrevistaResultado,
+    PreguntasPorCV,
+    EvaluacionEntrevista,
 )
+import json as _json
 from handlers.llm import prompts
 from handlers.observability import get_logger, log_event, UsageEvent, add_usage
 from handlers.observability.logger import timed
@@ -139,6 +145,105 @@ class ClaudeProvider(LLMProvider):
             return SoftSkillsResult.model_validate(data)
         except ValidationError as e:
             raise LLMError(f"Soft skills no validan el esquema: {e}") from e
+
+    async def extract_vacancy_from_text(self, texto: str) -> VacanteGenerada:
+        data = await self._call_with_tool(
+            prompts.VAC_EXTRACT_SYSTEM,
+            prompts.VAC_EXTRACT_USER_TEMPLATE.format(texto=(texto or "")[:30000]),
+            "registrar_vacante",
+            _pydantic_to_tool_schema(VacanteGenerada),
+            operacion="extract_vacancy",
+        )
+        try:
+            return VacanteGenerada.model_validate(data)
+        except ValidationError as e:
+            raise LLMError(f"Vacante extraida no valida el esquema: {e}") from e
+
+    async def generate_vacancy_draft(
+        self, inputs: GenerarVacanteInputs
+    ) -> VacanteGenerada:
+        data = await self._call_with_tool(
+            prompts.VAC_GENERATE_SYSTEM,
+            prompts.VAC_GENERATE_USER_TEMPLATE.format(
+                puesto=inputs.puesto,
+                seniority=inputs.seniority or "no especificado",
+                industria=inputs.industria or "no especificada",
+                stack=", ".join(inputs.stack) if inputs.stack else "no especificado",
+                responsabilidades=inputs.responsabilidades or "no especificadas",
+                notas=inputs.notas or "ninguna",
+            ),
+            "registrar_vacante",
+            _pydantic_to_tool_schema(VacanteGenerada),
+            operacion="generate_vacancy",
+        )
+        try:
+            return VacanteGenerada.model_validate(data)
+        except ValidationError as e:
+            raise LLMError(f"Vacante generada no valida el esquema: {e}") from e
+
+    async def generate_interview_guide(
+        self,
+        requisitos: RequisitosEstructurados,
+        descripcion: str | None = None,
+    ) -> GuiaEntrevistaResultado:
+        data = await self._call_with_tool(
+            prompts.GUIA_SYSTEM,
+            prompts.GUIA_USER_TEMPLATE.format(
+                requisitos_json=_json.dumps(requisitos.model_dump(), ensure_ascii=False, indent=2),
+                descripcion=(descripcion or "")[:4000],
+            ),
+            "registrar_guia_entrevista",
+            _pydantic_to_tool_schema(GuiaEntrevistaResultado),
+            operacion="generate_interview_guide",
+        )
+        try:
+            return GuiaEntrevistaResultado.model_validate(data)
+        except ValidationError as e:
+            raise LLMError(f"Guia de entrevista no valida el esquema: {e}") from e
+
+    async def generate_questions_from_cv(
+        self,
+        cv: CVEstructurado,
+        requisitos: RequisitosEstructurados,
+    ) -> PreguntasPorCV:
+        data = await self._call_with_tool(
+            prompts.QCV_SYSTEM,
+            prompts.QCV_USER_TEMPLATE.format(
+                cv_json=_json.dumps(cv.model_dump(), ensure_ascii=False, indent=2)[:15000],
+                requisitos_json=_json.dumps(requisitos.model_dump(), ensure_ascii=False, indent=2),
+            ),
+            "registrar_preguntas_cv",
+            _pydantic_to_tool_schema(PreguntasPorCV),
+            operacion="generate_questions_cv",
+        )
+        if isinstance(data, list):
+            data = {"preguntas": data}
+        try:
+            return PreguntasPorCV.model_validate(data)
+        except ValidationError as e:
+            raise LLMError(f"Preguntas por CV no validan el esquema: {e}") from e
+
+    async def evaluate_interview(
+        self,
+        transcripcion: str,
+        cv: CVEstructurado,
+        requisitos: RequisitosEstructurados,
+    ) -> EvaluacionEntrevista:
+        data = await self._call_with_tool(
+            prompts.EVAL_ENTREVISTA_SYSTEM,
+            prompts.EVAL_ENTREVISTA_USER_TEMPLATE.format(
+                cv_json=_json.dumps(cv.model_dump(), ensure_ascii=False, indent=2)[:12000],
+                requisitos_json=_json.dumps(requisitos.model_dump(), ensure_ascii=False, indent=2),
+                transcripcion=transcripcion[:40000],
+            ),
+            "registrar_evaluacion_entrevista",
+            _pydantic_to_tool_schema(EvaluacionEntrevista),
+            operacion="evaluate_interview",
+        )
+        try:
+            return EvaluacionEntrevista.model_validate(data)
+        except ValidationError as e:
+            raise LLMError(f"Evaluacion de entrevista no valida el esquema: {e}") from e
 
     async def health(self) -> bool:
         try:

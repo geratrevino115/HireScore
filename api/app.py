@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from db.database import init_db, engine
-from api.endpoints import vacancies, analyses, ollamaAPI, uploads, candidates
+from api.endpoints import vacancies, analyses, ollamaAPI, uploads, candidates, aplicaciones
 from handlers.llm import get_llm_provider
 
 
@@ -25,6 +25,7 @@ app.add_middleware(
 
 app.include_router(vacancies.router)
 app.include_router(analyses.router)
+app.include_router(aplicaciones.router)
 app.include_router(ollamaAPI.router)
 app.include_router(uploads.router)
 app.include_router(candidates.router)
@@ -50,8 +51,14 @@ async def health_check():
     except Exception:
         pass
 
+    from db.models import ETAPAS_APLICACION
     status = "ok" if db_ok and llm_ok else "degradado"
-    return {"status": status, "database": db_ok, "llm": {"provider": llm_name, "ok": llm_ok}}
+    return {
+        "status": status,
+        "database": db_ok,
+        "llm": {"provider": llm_name, "ok": llm_ok},
+        "etapas_aplicacion": list(ETAPAS_APLICACION),
+    }
 
 
 # Servir el dashboard en /app

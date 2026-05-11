@@ -133,3 +133,9 @@ dmypy.json
 .idea/
 *.iml
 .DS_Store
+
+# Datos de archivos subidos (binarios, no versionar)
+data/cv_data/
+data/audio_data/
+data/req_data/
+handlers/cvs/outputs/

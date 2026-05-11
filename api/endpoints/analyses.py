@@ -6,7 +6,16 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 from db.database import get_db, AsyncSessionLocal
-from api.schemas import AnalisisRead, JobStatus, CostoLLMRead, CostoAnalisisResumen, ExplicacionAnalisis, DesglosePuntaje
+from api.schemas import (
+    AnalisisRead,
+    AplicacionRead,
+    JobStatus,
+    CostoLLMRead,
+    CostoAnalisisResumen,
+    ExplicacionAnalisis,
+    DesglosePuntaje,
+    ProcesarResultado,
+)
 from db.crud import (
     create_analisis,
     get_analisis_por_vacante,
@@ -18,6 +27,8 @@ from db.crud import (
     crear_transcripciones_lote,
     crear_costos_llm_lote,
     get_costos_por_analisis,
+    find_or_create_candidato,
+    get_or_create_aplicacion,
 )
 from handlers.cvs.parsers.cv_reader import extract_text
 from handlers.scoring.scorer import calcular_score
@@ -85,6 +96,24 @@ async def _evaluar_soft_skills(transcripcion: Optional[str]) -> Optional[SoftSki
         return None
 
 
+async def _generar_preguntas_cv_best_effort(cv, requisitos) -> Optional[list[dict]]:
+    """Genera preguntas personalizadas al CV. Best-effort: si el LLM falla,
+    el análisis sigue siendo válido y devolvemos None."""
+    try:
+        provider = get_llm_provider()
+        resultado = await provider.generate_questions_from_cv(cv, requisitos)
+        return [p.model_dump() for p in resultado.preguntas]
+    except Exception as e:
+        log_event(
+            _log,
+            "WARN",
+            "preguntas_cv.skip",
+            error=str(e),
+            error_tipo=type(e).__name__,
+        )
+        return None
+
+
 def _hash_texto(texto: str) -> str:
     return hashlib.sha256((texto or "").encode("utf-8")).hexdigest()
 
@@ -112,18 +141,26 @@ async def _obtener_requisitos_estructurados(
     return requisitos
 
 
-async def _ejecutar_pipeline(
-    cv_path: str,
+async def _extraer_cv(cv_path: str):
+    """Primer tramo del pipeline: solo extract_text + extract_cv via LLM.
+    Es lo unico necesario para deduplicar candidatos por email antes de
+    ejecutar el resto del scoring. El caller debe haber llamado
+    start_collection() antes para que los tokens de esta llamada cuenten."""
+    provider = get_llm_provider()
+    texto_cv = extract_text(cv_path)
+    cv = await provider.extract_cv(texto_cv)
+    return cv
+
+
+async def _completar_pipeline(
+    cv,
     audio_path: Optional[str],
     vacante,
     candidato_id: int | None = None,
     vacante_id: int | None = None,
 ):
-    eventos_uso = start_collection()
-    provider = get_llm_provider()
-
-    texto_cv = extract_text(cv_path)
-    cv = await provider.extract_cv(texto_cv)
+    """Segundo tramo del pipeline: requisitos, audio, soft skills, scoring.
+    Asume que el collector de eventos ya esta activo."""
     requisitos = await _obtener_requisitos_estructurados(vacante, vacante.requisitos_texto or "")
     contexto = {"cv": cv, "requisitos": requisitos, "soft": None}
 
@@ -152,8 +189,48 @@ async def _ejecutar_pipeline(
         candidato_id=candidato_id,
         vacante_id=vacante_id,
     )
-    stop_collection()
-    return resultado, sentimiento, segmentos, eventos_uso, contexto
+
+    # Best-effort: preguntas personalizadas al CV. Si falla, no rompe el analisis.
+    contexto["preguntas_cv"] = await _generar_preguntas_cv_best_effort(cv, requisitos)
+
+    return resultado, sentimiento, segmentos, contexto
+
+
+async def _resolver_candidato(
+    db: AsyncSession,
+    candidato_id: Optional[int],
+    cv,
+):
+    """Resuelve qué candidato usar para esta aplicación.
+    - Si viene candidato_id explicito: lo usa (lookup + 404 si no existe).
+    - Si no viene: dedupe por email extraido del CV. Si no hay email en el
+      CV, crea un candidato nuevo con el nombre extraido (sin posibilidad
+      de dedupe — cada subida sera un candidato distinto)."""
+    if candidato_id is not None:
+        candidato = await get_candidato(db, candidato_id)
+        if not candidato:
+            raise HTTPException(status_code=404, detail="Candidato no encontrado")
+        return candidato, False
+
+    datos = getattr(cv, "datos_personales", None)
+    nombre = (getattr(datos, "nombre", None) or "").strip() if datos else ""
+    email = (getattr(datos, "email", None) or "").strip() if datos else ""
+    telefono = (getattr(datos, "telefono", None) or "").strip() if datos else ""
+
+    candidato, fue_creado = await find_or_create_candidato(
+        db,
+        nombre=nombre or "(sin nombre)",
+        email=email or None,
+        telefono=telefono or None,
+    )
+    log_event(
+        _log,
+        "INFO",
+        "candidato.dedupe" if not fue_creado else "candidato.creado",
+        candidato_id=candidato.id,
+        email_match=bool(email and not fue_creado),
+    )
+    return candidato, fue_creado
 
 
 async def _persistir_transcripciones(
@@ -196,7 +273,7 @@ async def _pipeline_async(
     job_id: str,
     cv_path: str,
     audio_path: Optional[str],
-    candidato_id: int,
+    candidato_id: Optional[int],
     vacante_id: int,
 ):
     try:
@@ -204,15 +281,32 @@ async def _pipeline_async(
             vacante = await get_vacante(db_lookup, vacante_id)
             if not vacante:
                 raise RuntimeError(f"Vacante {vacante_id} desaparecio durante el job")
-        resultado, sentimiento, segmentos, eventos_uso, contexto = await _ejecutar_pipeline(
-            cv_path, audio_path, vacante,
-            candidato_id=candidato_id, vacante_id=vacante_id,
-        )
+
+        eventos_uso = start_collection()
+        try:
+            # Paso 1: extraer CV (necesario para obtener email del dedupe)
+            cv = await _extraer_cv(cv_path)
+
+            # Paso 2: resolver candidato + aplicacion
+            async with AsyncSessionLocal() as db:
+                candidato, fue_creado = await _resolver_candidato(db, candidato_id, cv)
+                aplicacion, _ = await get_or_create_aplicacion(db, vacante_id, candidato.id)
+
+            # Paso 3: completar pipeline (requisitos + audio + scoring)
+            resultado, sentimiento, segmentos, contexto = await _completar_pipeline(
+                cv, audio_path, vacante,
+                candidato_id=candidato.id, vacante_id=vacante_id,
+            )
+        finally:
+            stop_collection()
+
+        # Paso 4: persistir analisis + costos
         async with AsyncSessionLocal() as db:
             analisis = await create_analisis(
                 db,
-                candidato_id=candidato_id,
+                candidato_id=candidato.id,
                 vacante_id=vacante_id,
+                aplicacion_id=aplicacion.id,
                 puntaje_total=resultado.puntaje_total,
                 desglose=[d.model_dump() for d in resultado.desglose],
                 sentimiento_compound=sentimiento,
@@ -223,6 +317,7 @@ async def _pipeline_async(
                 pesos_aplicados_json=resultado.pesos_usados,
                 skills_match=resultado.skills_match,
                 skills_faltantes=resultado.skills_faltantes,
+                preguntas_cv_json=contexto.get("preguntas_cv"),
             )
             if segmentos and audio_path:
                 await _persistir_transcripciones(db, segmentos, audio_path, analisis.id)
@@ -247,21 +342,20 @@ async def _save_upload(file: UploadFile, folder: str, allowed: list[str]) -> str
     return path
 
 
-@router.post("/procesar", response_model=AnalisisRead)
+@router.post("/procesar", response_model=ProcesarResultado)
 async def procesar_analisis(
     cv_file: UploadFile = File(...),
     audio_file: UploadFile = File(None),
-    candidato_id: int = Form(...),
+    candidato_id: Optional[int] = Form(None),
     vacante_id: int = Form(...),
     db: AsyncSession = Depends(get_db),
 ):
+    """Procesa un CV contra una vacante. Si no se pasa candidato_id, dedupe
+    automatico por email extraido del CV. Devuelve la Aplicacion (en etapa
+    'nueva' si es primera vez) y el Analisis con su score."""
     vacante = await get_vacante(db, vacante_id)
     if not vacante:
         raise HTTPException(status_code=404, detail="Vacante no encontrada")
-
-    candidato = await get_candidato(db, candidato_id)
-    if not candidato:
-        raise HTTPException(status_code=404, detail="Candidato no encontrado")
 
     cv_path = await _save_upload(cv_file, CV_FOLDER, [".pdf", ".docx"])
 
@@ -269,20 +363,35 @@ async def procesar_analisis(
     if audio_file and audio_file.filename:
         audio_path = await _save_upload(audio_file, AUDIO_FOLDER, [".wav", ".mp3", ".ogg", ".m4a", ".flac"])
 
+    eventos_uso = start_collection()
     try:
-        resultado, sentimiento, segmentos, eventos_uso, contexto = await _ejecutar_pipeline(
-            cv_path, audio_path, vacante,
-            candidato_id=candidato_id, vacante_id=vacante_id,
-        )
-    except LLMError as e:
-        raise HTTPException(status_code=502, detail=f"Error del proveedor LLM: {e}")
-    except Exception as e:
-        raise HTTPException(status_code=422, detail=f"No se pudo procesar el analisis: {e}")
+        try:
+            cv = await _extraer_cv(cv_path)
+        except LLMError as e:
+            raise HTTPException(status_code=502, detail=f"Error del proveedor LLM: {e}")
+        except Exception as e:
+            raise HTTPException(status_code=422, detail=f"No se pudo leer el CV: {e}")
+
+        candidato, fue_creado = await _resolver_candidato(db, candidato_id, cv)
+        aplicacion, _ = await get_or_create_aplicacion(db, vacante_id, candidato.id)
+
+        try:
+            resultado, sentimiento, segmentos, contexto = await _completar_pipeline(
+                cv, audio_path, vacante,
+                candidato_id=candidato.id, vacante_id=vacante_id,
+            )
+        except LLMError as e:
+            raise HTTPException(status_code=502, detail=f"Error del proveedor LLM: {e}")
+        except Exception as e:
+            raise HTTPException(status_code=422, detail=f"No se pudo procesar el analisis: {e}")
+    finally:
+        stop_collection()
 
     analisis = await create_analisis(
         db,
-        candidato_id=candidato_id,
+        candidato_id=candidato.id,
         vacante_id=vacante_id,
+        aplicacion_id=aplicacion.id,
         puntaje_total=resultado.puntaje_total,
         desglose=[d.model_dump() for d in resultado.desglose],
         sentimiento_compound=sentimiento,
@@ -293,11 +402,16 @@ async def procesar_analisis(
         pesos_aplicados_json=resultado.pesos_usados,
         skills_match=resultado.skills_match,
         skills_faltantes=resultado.skills_faltantes,
+        preguntas_cv_json=contexto.get("preguntas_cv"),
     )
     if segmentos and audio_path:
         await _persistir_transcripciones(db, segmentos, audio_path, analisis.id)
     await _persistir_costos(db, eventos_uso, analisis.id)
-    return analisis
+    return ProcesarResultado(
+        aplicacion=AplicacionRead.model_validate(aplicacion),
+        analisis=AnalisisRead.model_validate(analisis),
+        candidato_creado=fue_creado,
+    )
 
 
 @router.post("/procesar-async", response_model=JobStatus)
@@ -305,17 +419,20 @@ async def procesar_analisis_async(
     background_tasks: BackgroundTasks,
     cv_file: UploadFile = File(...),
     audio_file: UploadFile = File(None),
-    candidato_id: int = Form(...),
+    candidato_id: Optional[int] = Form(None),
     vacante_id: int = Form(...),
     db: AsyncSession = Depends(get_db),
 ):
+    """Encola el procesamiento. candidato_id es opcional: si se omite, dedupe
+    automatico por email durante el job."""
     vacante = await get_vacante(db, vacante_id)
     if not vacante:
         raise HTTPException(status_code=404, detail="Vacante no encontrada")
 
-    candidato = await get_candidato(db, candidato_id)
-    if not candidato:
-        raise HTTPException(status_code=404, detail="Candidato no encontrado")
+    if candidato_id is not None:
+        candidato = await get_candidato(db, candidato_id)
+        if not candidato:
+            raise HTTPException(status_code=404, detail="Candidato no encontrado")
 
     cv_path = await _save_upload(cv_file, CV_FOLDER, [".pdf", ".docx"])
 
@@ -366,6 +483,58 @@ async def get_explicacion(analisis_id: int, db: AsyncSession = Depends(get_db)):
         requisitos=analisis.requisitos_snapshot_json,
         soft_skills=analisis.soft_skills_json,
         sentimiento_compound=analisis.sentimiento_compound,
+        preguntas_cv=analisis.preguntas_cv_json,
+        evaluacion_entrevista=analisis.evaluacion_entrevista_json,
+    )
+
+
+@router.post("/{analisis_id}/preguntas-cv", response_model=ExplicacionAnalisis)
+async def regenerar_preguntas_cv(
+    analisis_id: int, db: AsyncSession = Depends(get_db)
+):
+    """Regenera las preguntas personalizadas al CV de este analisis.
+    Util cuando la generacion automatica fallo o quieres preguntas frescas.
+    Reemplaza las anteriores."""
+    from db.crud import get_analisis_by_id as _get
+    analisis = await _get(db, analisis_id)
+    if not analisis:
+        raise HTTPException(status_code=404, detail="Analisis no encontrado")
+    if not analisis.cv_estructurado_json or not analisis.requisitos_snapshot_json:
+        raise HTTPException(
+            status_code=422,
+            detail="El analisis no tiene snapshot de CV o requisitos para generar preguntas.",
+        )
+    from handlers.llm.schemas import CVEstructurado as _CV, RequisitosEstructurados as _Req
+    cv = _CV.model_validate(analisis.cv_estructurado_json)
+    requisitos = _Req.model_validate(analisis.requisitos_snapshot_json)
+
+    provider = get_llm_provider()
+    start_collection()
+    try:
+        try:
+            resultado = await provider.generate_questions_from_cv(cv, requisitos)
+        except LLMError as e:
+            raise HTTPException(status_code=502, detail=f"Error del proveedor LLM: {e}")
+        analisis.preguntas_cv_json = [p.model_dump() for p in resultado.preguntas]
+        await db.commit()
+        await db.refresh(analisis)
+    finally:
+        stop_collection()
+
+    return ExplicacionAnalisis(
+        analisis_id=analisis.id,
+        puntaje_total=analisis.puntaje_total,
+        desglose=[DesglosePuntaje.model_validate(d) for d in (analisis.desglose or [])],
+        features_crudos=analisis.features_crudos_json,
+        pesos_aplicados=analisis.pesos_aplicados_json,
+        skills_match=analisis.skills_match or [],
+        skills_faltantes=analisis.skills_faltantes or [],
+        cv_estructurado=analisis.cv_estructurado_json,
+        requisitos=analisis.requisitos_snapshot_json,
+        soft_skills=analisis.soft_skills_json,
+        sentimiento_compound=analisis.sentimiento_compound,
+        preguntas_cv=analisis.preguntas_cv_json,
+        evaluacion_entrevista=analisis.evaluacion_entrevista_json,
     )
 
 

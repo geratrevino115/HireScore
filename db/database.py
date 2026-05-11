@@ -29,6 +29,21 @@ _COLUMNAS_NUEVAS = [
     ("analisis", "pesos_aplicados_json", "JSONB"),
     ("analisis", "skills_match", "JSONB"),
     ("analisis", "skills_faltantes", "JSONB"),
+    ("analisis", "preguntas_cv_json", "JSONB"),
+    ("analisis", "evaluacion_entrevista_json", "JSONB"),
+    ("candidatos", "email", "VARCHAR(255)"),
+    ("candidatos", "telefono", "VARCHAR(50)"),
+    ("aplicaciones", "etapa", "VARCHAR(20) DEFAULT 'nueva' NOT NULL"),
+    ("aplicaciones", "notas", "TEXT"),
+    ("aplicaciones", "actualizada_en", "TIMESTAMPTZ"),
+    ("analisis", "aplicacion_id", "INTEGER"),
+]
+
+
+_INDICES_NUEVOS = [
+    ("ix_candidatos_email", "candidatos", "email"),
+    ("ix_aplicaciones_etapa", "aplicaciones", "etapa"),
+    ("ix_analisis_aplicacion_id", "analisis", "aplicacion_id"),
 ]
 
 
@@ -37,6 +52,10 @@ async def _ensure_columns(conn):
     for tabla, columna, tipo in _COLUMNAS_NUEVAS:
         await conn.execute(
             text(f'ALTER TABLE {tabla} ADD COLUMN IF NOT EXISTS {columna} {tipo}')
+        )
+    for indice, tabla, columna in _INDICES_NUEVOS:
+        await conn.execute(
+            text(f'CREATE INDEX IF NOT EXISTS {indice} ON {tabla} ({columna})')
         )
 
 

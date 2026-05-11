@@ -120,3 +120,125 @@ class SoftSkillsResult(BaseModel):
             + self.resolucion_problemas.puntaje
             + self.trabajo_equipo.puntaje
         ) / 3
+
+
+# ---------------------------------------------------------------------------
+# Generación / extracción de descripción de vacante
+# ---------------------------------------------------------------------------
+
+
+class VacanteGenerada(BaseModel):
+    """Descriptor de una vacante (titulo + descripcion + requisitos en texto).
+
+    Es el output tanto de `extract_vacancy_from_text` (cuando el reclutador sube
+    un PDF/DOCX) como de `generate_vacancy_draft` (cuando pide ayuda a la IA).
+    `requisitos_texto` se procesa luego con `extract_requisitos` para tener la
+    versión estructurada que usa el scorer.
+    """
+    titulo: str
+    descripcion: Optional[str] = None
+    requisitos_texto: str = Field(
+        ...,
+        description=(
+            "Texto en formato lista o párrafos con los requisitos técnicos, "
+            "experiencia mínima, educación y soft skills. Se usa como input "
+            "del extractor estructurado."
+        ),
+    )
+
+
+class GenerarVacanteInputs(BaseModel):
+    """Inputs del wizard de IA cuando el reclutador no tiene JD lista."""
+    puesto: str
+    seniority: Optional[str] = None  # junior, mid, senior, lead, etc.
+    industria: Optional[str] = None
+    stack: list[str] = Field(default_factory=list)
+    responsabilidades: Optional[str] = None
+    notas: Optional[str] = None
+
+
+# ---------------------------------------------------------------------------
+# Guía de entrevista
+# ---------------------------------------------------------------------------
+
+
+class PreguntaEntrevista(BaseModel):
+    pregunta: str
+    skill_relacionada: Optional[str] = None
+    objetivo: Optional[str] = Field(
+        default=None,
+        description="Qué busca evaluar esta pregunta (1 oración).",
+    )
+    tipo: str = Field(
+        default="tecnica",
+        description="tecnica, comportamiento, situacional",
+    )
+
+
+class GuiaEntrevistaResultado(BaseModel):
+    """Guía técnica que el reclutador puede usar como referencia en la entrevista.
+
+    Incluye preguntas categorizadas y criterios de evaluación. Se genera a partir
+    de los requisitos estructurados de la vacante; en una iteración posterior se
+    enriquecerá con preguntas específicas al CV de cada candidato.
+    """
+    preguntas: list[PreguntaEntrevista] = Field(default_factory=list)
+    criterios_evaluacion: list[str] = Field(
+        default_factory=list,
+        description="Criterios cualitativos para evaluar las respuestas.",
+    )
+    senales_de_alerta: list[str] = Field(
+        default_factory=list,
+        description="Banderas rojas a vigilar durante la entrevista.",
+    )
+
+
+class PreguntasPorCV(BaseModel):
+    """Preguntas de entrevista personalizadas al CV de un candidato concreto.
+
+    Profundizan en proyectos, empresas o pretensiones específicas del CV; se
+    combinan con la guía base de la vacante para una entrevista hecha a la medida.
+    """
+    preguntas: list[PreguntaEntrevista] = Field(
+        default_factory=list,
+        description="5-8 preguntas adaptadas al CV específico.",
+    )
+
+
+# ---------------------------------------------------------------------------
+# Evaluación de entrevista (audio → transcripción → LLM)
+# ---------------------------------------------------------------------------
+
+
+class DimensionEvaluacion(BaseModel):
+    """Resultado de una dimensión de evaluación de entrevista. 0-100."""
+    puntaje: float = Field(ge=0, le=100)
+    justificacion: str
+    evidencias: list[str] = Field(
+        default_factory=list,
+        description="Citas literales de la transcripción que sostienen la evaluación.",
+    )
+
+
+class EvaluacionEntrevista(BaseModel):
+    """Evaluación estructurada de una entrevista versus CV y requisitos.
+
+    Tres dimensiones independientes:
+    - cobertura: ¿cubrió los temas y skills clave de la vacante?
+    - consistencia: ¿lo dicho coincide con el CV?
+    - profundidad: ¿respuestas concretas y técnicas vs genéricas y vagas?
+    """
+    cobertura: DimensionEvaluacion
+    consistencia: DimensionEvaluacion
+    profundidad: DimensionEvaluacion
+    resumen_ejecutivo: Optional[str] = Field(
+        default=None,
+        description="2-3 oraciones de resumen para el reclutador.",
+    )
+
+    @property
+    def puntaje_total(self) -> float:
+        return round(
+            (self.cobertura.puntaje + self.consistencia.puntaje + self.profundidad.puntaje) / 3,
+            1,
+        )

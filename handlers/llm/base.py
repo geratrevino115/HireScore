@@ -4,6 +4,11 @@ from handlers.llm.schemas import (
     CVEstructurado,
     RequisitosEstructurados,
     SoftSkillsResult,
+    VacanteGenerada,
+    GenerarVacanteInputs,
+    GuiaEntrevistaResultado,
+    PreguntasPorCV,
+    EvaluacionEntrevista,
 )
 
 
@@ -34,6 +39,37 @@ class LLMProvider(ABC):
     @abstractmethod
     async def evaluate_soft_skills(self, transcripcion: str) -> SoftSkillsResult:
         """Evalua soft skills sobre la transcripcion de una entrevista."""
+
+    @abstractmethod
+    async def extract_vacancy_from_text(self, texto: str) -> VacanteGenerada:
+        """Convierte un PDF/DOCX volcado a texto en una descripcion de vacante limpia."""
+
+    @abstractmethod
+    async def generate_vacancy_draft(self, inputs: GenerarVacanteInputs) -> VacanteGenerada:
+        """Genera un borrador de vacante a partir de inputs basicos del reclutador."""
+
+    @abstractmethod
+    async def generate_interview_guide(
+        self, requisitos: RequisitosEstructurados, descripcion: str | None = None
+    ) -> GuiaEntrevistaResultado:
+        """Genera la guia de entrevista (preguntas + criterios + senales) para una vacante."""
+
+    @abstractmethod
+    async def generate_questions_from_cv(
+        self, cv: CVEstructurado, requisitos: RequisitosEstructurados
+    ) -> PreguntasPorCV:
+        """Genera preguntas personalizadas al CV de un candidato concreto,
+        complementarias a la guia base de la vacante."""
+
+    @abstractmethod
+    async def evaluate_interview(
+        self,
+        transcripcion: str,
+        cv: CVEstructurado,
+        requisitos: RequisitosEstructurados,
+    ) -> EvaluacionEntrevista:
+        """Evalua una entrevista transcrita en tres dimensiones: cobertura,
+        consistencia (CV vs entrevista) y profundidad tecnica."""
 
     @abstractmethod
     async def health(self) -> bool:
