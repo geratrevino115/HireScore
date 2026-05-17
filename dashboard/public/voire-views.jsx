@@ -243,57 +243,321 @@ function priorityBadge(p) {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-// DASHBOARD
+// DASHBOARD — Notion-style page
 // ════════════════════════════════════════════════════════════════════════════
+function NotionProperty({ icon, label, children }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6, padding: '4px 0', minHeight: 28 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, width: 160, color: 'var(--n-text-2)', fontSize: 14, padding: '2px 6px', borderRadius: 4, cursor: 'pointer' }}
+        onMouseEnter={e => e.currentTarget.style.background = 'var(--n-hover)'}
+        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+        <span style={{ fontSize: 14 }}>{icon}</span>
+        <span>{label}</span>
+      </div>
+      <div style={{ flex: 1, padding: '2px 6px', borderRadius: 4, color: 'var(--n-text)', fontSize: 14, cursor: 'pointer', minHeight: 24, display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 4 }}
+        onMouseEnter={e => e.currentTarget.style.background = 'var(--n-hover)'}
+        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function NotionTag({ children, color = 'gray' }) {
+  const colors = {
+    gray:    { bg: 'rgba(120,119,116,0.16)', fg: '#37352F' },
+    brown:   { bg: 'rgba(140,46,0,0.16)',    fg: '#64473A' },
+    orange:  { bg: 'rgba(217,115,13,0.16)',  fg: '#D9730D' },
+    yellow:  { bg: 'rgba(223,171,1,0.18)',   fg: '#DFAB01' },
+    green:   { bg: 'rgba(15,123,108,0.16)',  fg: '#0F7B6C' },
+    blue:    { bg: 'rgba(11,110,153,0.16)',  fg: '#0B6E99' },
+    purple:  { bg: 'rgba(105,64,165,0.16)',  fg: '#6940A5' },
+    pink:    { bg: 'rgba(173,26,114,0.16)',  fg: '#AD1A72' },
+    red:     { bg: 'rgba(224,62,62,0.16)',   fg: '#E03E3E' },
+  };
+  const c = colors[color] || colors.gray;
+  return (
+    <span style={{
+      padding: '1px 8px', borderRadius: 3, fontSize: 14, lineHeight: 1.5,
+      background: c.bg, color: c.fg, fontWeight: 400, whiteSpace: 'nowrap',
+    }}>{children}</span>
+  );
+}
+
+const PRIORITY_COLOR = { urgente: 'red', alta: 'orange', media: 'yellow', baja: 'gray' };
+const DEPT_COLOR = { Engineering: 'blue', 'Producto': 'green', 'Diseño': 'purple', 'Marketing': 'pink', 'Ventas': 'orange' };
+
+const VACANCY_EMOJI = { 1: '💻', 2: '🎨', 3: '📊', 4: '📣', 5: '🔧', 6: '⚙️', 7: '🚀' };
+function vacEmoji(v) { return VACANCY_EMOJI[v.id] || '📄'; }
+
 function DashboardView({ setView, setVacancy, setNewVacancyOpen }) {
+  const [tab, setTab] = React.useState('table');
   const [hov, setHov] = React.useState(null);
   const total = VACANCIES.reduce((a, v) => a + v.candidates.length, 0);
   const withInterview = VACANCIES.reduce((a, v) => a + v.candidates.filter(c => c.interview.recorded).length, 0);
-  const pending = VACANCIES.reduce((a, v) => a + v.candidates.filter(c => !c.cvUploaded || !c.interview.recorded).length, 0);
-  const readyForDecision = VACANCIES.flatMap(v => v.candidates).filter(c => c.stageIndex >= 3).length;
-  const totalCost = VACANCIES.reduce((a, v) => a + v.costTotal, 0);
 
   return (
-    <div style={{ flex: 1, overflow: 'auto', background: 'var(--bg)' }}>
-      <TopBar title="Vacantes activas" action={
-        <button onClick={() => setNewVacancyOpen(true)} style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '8px 16px', borderRadius: 8, background: 'var(--accent)', color: 'white', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>
-          {React.createElement(ICONS.plus)} Nueva vacante
-        </button>
-      } />
-      <div style={{ padding: '28px 28px 48px' }}>
-        <div style={{ marginBottom: 28 }}>
-          <h1 style={{ fontSize: 24, fontWeight: 700, letterSpacing: '-0.5px', color: 'var(--text-1)', marginBottom: 4 }}>Buenos días, Ana 👋</h1>
-          <p style={{ fontSize: 14, color: 'var(--text-2)' }}>
-            <strong style={{ color: 'var(--text-1)' }}>{VACANCIES.length} vacantes</strong> abiertas · <strong style={{ color: 'var(--text-1)' }}>{total} candidatos</strong> en proceso.
-          </p>
+    <div className="notion-page" style={{ flex: 1, overflow: 'auto', background: 'var(--n-bg)' }}>
+      {/* Top toolbar minimal (Notion) */}
+      <div style={{ height: 45, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 14px', borderBottom: '1px solid var(--n-divider)', color: 'var(--n-text-2)', fontSize: 14 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          <span style={{ padding: '3px 6px', borderRadius: 4, cursor: 'pointer' }}
+            onMouseEnter={e => e.currentTarget.style.background = 'var(--n-hover)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>Workspace</span>
+          <span style={{ color: 'var(--n-text-3)' }}>/</span>
+          <span style={{ padding: '3px 6px', borderRadius: 4, cursor: 'pointer', color: 'var(--n-text)', display: 'inline-flex', gap: 4, alignItems: 'center' }}
+            onMouseEnter={e => e.currentTarget.style.background = 'var(--n-hover)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+            💼 <span>Vacantes activas</span>
+          </span>
         </div>
-        {/* Stats */}
-        <div style={{ display: 'flex', gap: 14, marginBottom: 32 }}>
-          {[
-            { label: 'Vacantes abiertas',     val: VACANCIES.length,   sub: '1 urgente',                    color: null },
-            { label: 'Candidatos en proceso', val: total,              sub: `${withInterview} entrevistados`, color: null },
-            { label: 'Requieren acción',      val: pending,            sub: 'CV o entrevista faltante',      color: pending > 0 ? 'var(--amber)' : 'var(--green)' },
-            { label: 'Listos para decisión',  val: readyForDecision,   sub: 'En etapa final u oferta',       color: 'var(--accent)' },
-            { label: 'Costo IA este mes',     val: `$${totalCost.toFixed(3)}`, sub: 'USD · Claude Haiku',   color: 'var(--text-2)', mono: true },
-          ].map(s => (
-            <div key={s.label} style={{ flex: 1, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '16px 18px' }}>
-              <div style={{ fontSize: 10.5, color: 'var(--text-3)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 }}>{s.label}</div>
-              <div style={{ fontSize: s.mono ? 20 : 28, fontWeight: 700, letterSpacing: s.mono ? '-0.5px' : '-1px', color: s.color || 'var(--text-1)', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>{s.val}</div>
-              <div style={{ fontSize: 11.5, color: 'var(--text-3)', marginTop: 4 }}>{s.sub}</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <button style={{ padding: '4px 8px', height: 28, borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 14, color: 'var(--n-text-2)' }}
+            onMouseEnter={e => e.currentTarget.style.background = 'var(--n-hover)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>Compartir</button>
+          <button aria-label="Comentarios" style={{ width: 28, height: 28, borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: 'var(--n-text-2)' }}
+            onMouseEnter={e => e.currentTarget.style.background = 'var(--n-hover)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </button>
+          <button aria-label="Favorito" style={{ width: 28, height: 28, borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: 'var(--n-text-2)' }}
+            onMouseEnter={e => e.currentTarget.style.background = 'var(--n-hover)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><polygon points="12 2 15 8.5 22 9.3 17 14.1 18.2 21 12 17.8 5.8 21 7 14.1 2 9.3 9 8.5 12 2"/></svg>
+          </button>
+          <button aria-label="Más" style={{ width: 28, height: 28, borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: 'var(--n-text-2)' }}
+            onMouseEnter={e => e.currentTarget.style.background = 'var(--n-hover)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
+          </button>
+        </div>
+      </div>
+
+      {/* Page header */}
+      <div style={{ maxWidth: 960, margin: '0 auto', padding: '60px 96px 0' }}>
+        {/* Icon emoji */}
+        <div style={{ fontSize: 78, lineHeight: 1, marginBottom: 4, marginLeft: -4 }}>💼</div>
+        {/* Title */}
+        <h1 style={{ fontSize: 40, fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--n-text)', lineHeight: 1.2, marginTop: 12, marginBottom: 6 }}>
+          Vacantes activas
+        </h1>
+
+        {/* Properties */}
+        <div style={{ marginTop: 12, marginBottom: 8 }}>
+          <NotionProperty icon="👤" label="Owner">
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ width: 18, height: 18, borderRadius: '50%', background: '#E03E3E', color: 'white', fontSize: 10, fontWeight: 600, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>AR</span>
+              Ana Ríos
+            </span>
+          </NotionProperty>
+          <NotionProperty icon="🏷️" label="Tags">
+            <NotionTag color="blue">Recruiting</NotionTag>
+            <NotionTag color="green">2026 Q2</NotionTag>
+          </NotionProperty>
+          <NotionProperty icon="📅" label="Última actualización">
+            <span style={{ color: 'var(--n-text-2)' }}>Hoy a las 09:42</span>
+          </NotionProperty>
+          <NotionProperty icon="🔢" label="Resumen">
+            <span style={{ color: 'var(--n-text-2)' }}>
+              <strong style={{ color: 'var(--n-text)', fontWeight: 600 }}>{VACANCIES.length}</strong> vacantes ·{' '}
+              <strong style={{ color: 'var(--n-text)', fontWeight: 600 }}>{total}</strong> candidatos ·{' '}
+              <strong style={{ color: 'var(--n-text)', fontWeight: 600 }}>{withInterview}</strong> entrevistas
+            </span>
+          </NotionProperty>
+          <button style={{ marginTop: 4, padding: '4px 6px', borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--n-text-3)', fontSize: 14, display: 'inline-flex', alignItems: 'center', gap: 6 }}
+            onMouseEnter={e => e.currentTarget.style.background = 'var(--n-hover)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+            + Agregar una propiedad
+          </button>
+        </div>
+
+        {/* Divider */}
+        <div style={{ borderTop: '1px solid var(--n-divider)', margin: '14px 0 8px' }} />
+
+        {/* Inline content paragraph */}
+        <p style={{ color: 'var(--n-text)', fontSize: 16, lineHeight: 1.5, margin: '12px 0 4px', padding: '3px 2px' }}>
+          Base de datos central de procesos de selección abiertos. Haz clic en una fila para abrir el pipeline kanban de esa vacante.
+        </p>
+
+        {/* Database block */}
+        <div style={{ marginTop: 28 }}>
+          {/* DB header: title + add view */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '4px 0' }}>
+            <h2 style={{ fontSize: 24, fontWeight: 700, color: 'var(--n-text)', letterSpacing: '-0.01em', margin: 0 }}>📋 Vacantes</h2>
+          </div>
+
+          {/* View tabs */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--n-divider)', marginTop: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
+              {[
+                { id: 'table', label: 'Tabla', icon: '☰' },
+                { id: 'board', label: 'Tablero', icon: '▦' },
+                { id: 'gallery', label: 'Galería', icon: '▢' },
+              ].map(t => (
+                <button key={t.id} onClick={() => setTab(t.id)}
+                  style={{
+                    padding: '6px 10px', borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer',
+                    fontSize: 14, color: tab === t.id ? 'var(--n-text)' : 'var(--n-text-2)',
+                    borderBottom: `2px solid ${tab === t.id ? 'var(--n-text)' : 'transparent'}`,
+                    marginBottom: -1, fontWeight: tab === t.id ? 500 : 400,
+                    display: 'inline-flex', alignItems: 'center', gap: 5,
+                  }}>
+                  <span style={{ fontSize: 13 }}>{t.icon}</span> {t.label}
+                </button>
+              ))}
+              <button style={{ padding: '6px 8px', borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 14, color: 'var(--n-text-3)' }}
+                onMouseEnter={e => e.currentTarget.style.background = 'var(--n-hover)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>+ Nueva vista</button>
             </div>
-          ))}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <button style={{ padding: '4px 8px', borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 13, color: 'var(--n-text-2)' }}
+                onMouseEnter={e => e.currentTarget.style.background = 'var(--n-hover)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>Filtrar</button>
+              <button style={{ padding: '4px 8px', borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 13, color: 'var(--n-text-2)' }}
+                onMouseEnter={e => e.currentTarget.style.background = 'var(--n-hover)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>Ordenar</button>
+              <button aria-label="Buscar" style={{ width: 28, height: 28, borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: 'var(--n-text-2)' }}
+                onMouseEnter={e => e.currentTarget.style.background = 'var(--n-hover)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              </button>
+              <button onClick={() => setNewVacancyOpen(true)} style={{ padding: '5px 10px', borderRadius: 4, border: 'none', background: '#2383E2', color: 'white', cursor: 'pointer', fontSize: 13, fontWeight: 500, marginLeft: 6 }}>
+                Nueva
+              </button>
+            </div>
+          </div>
+
+          {/* TABLE VIEW */}
+          {tab === 'table' && (
+            <div style={{ marginTop: 0 }}>
+              {/* Header row */}
+              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 90px 90px 1fr', borderBottom: '1px solid var(--n-divider)', fontSize: 12, color: 'var(--n-text-2)', fontWeight: 500 }}>
+                {['Aa Vacante','Departamento','Prioridad','Candidatos','Top score','Publicada'].map((h, i) => (
+                  <div key={i} style={{ padding: '7px 8px', borderRight: i < 5 ? '1px solid var(--n-divider)' : 'none', cursor: 'pointer' }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'var(--n-hover)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>{h}</div>
+                ))}
+              </div>
+              {/* Rows */}
+              {VACANCIES.map(v => {
+                const topC = v.candidates.reduce((b, c) => !b || c.score > b.score ? c : b, null);
+                const isHov = hov === v.id;
+                return (
+                  <div key={v.id}
+                    onMouseEnter={() => setHov(v.id)} onMouseLeave={() => setHov(null)}
+                    onClick={() => { setVacancy(v); setView('vacancy'); }}
+                    style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 90px 90px 1fr', borderBottom: '1px solid var(--n-divider)', fontSize: 14, color: 'var(--n-text)', cursor: 'pointer', background: isHov ? 'var(--n-hover)' : 'transparent' }}>
+                    <div style={{ padding: '7px 8px', borderRight: '1px solid var(--n-divider)', display: 'flex', alignItems: 'center', gap: 6, minHeight: 32 }}>
+                      <span style={{ fontSize: 16, lineHeight: 1 }}>{vacEmoji(v)}</span>
+                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{v.title}</span>
+                      {isHov && (
+                        <span style={{ marginLeft: 'auto', padding: '2px 6px', borderRadius: 3, fontSize: 12, color: 'var(--n-text-2)', border: '1px solid var(--n-divider)', background: 'var(--n-bg)' }}>↗ Abrir</span>
+                      )}
+                    </div>
+                    <div style={{ padding: '7px 8px', borderRight: '1px solid var(--n-divider)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <NotionTag color={DEPT_COLOR[v.department] || 'gray'}>{v.department}</NotionTag>
+                    </div>
+                    <div style={{ padding: '7px 8px', borderRight: '1px solid var(--n-divider)', display: 'flex', alignItems: 'center' }}>
+                      <NotionTag color={PRIORITY_COLOR[v.priority] || 'gray'}>{v.priority}</NotionTag>
+                    </div>
+                    <div style={{ padding: '7px 8px', borderRight: '1px solid var(--n-divider)', display: 'flex', alignItems: 'center', fontVariantNumeric: 'tabular-nums', color: 'var(--n-text-2)' }}>
+                      {v.candidates.length}
+                    </div>
+                    <div style={{ padding: '7px 8px', borderRight: '1px solid var(--n-divider)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                      {topC ? (
+                        <>
+                          <div style={{
+                            width: 22, height: 6, borderRadius: 3,
+                            background: 'linear-gradient(90deg, ' + (topC.score >= 85 ? '#0F7B6C' : topC.score >= 70 ? '#D9730D' : '#E03E3E') + ' ' + topC.score + '%, var(--n-hover) ' + topC.score + '%)',
+                          }} />
+                          <span style={{ fontVariantNumeric: 'tabular-nums', color: 'var(--n-text-2)' }}>{topC.score}</span>
+                        </>
+                      ) : <span style={{ color: 'var(--n-text-3)' }}>—</span>}
+                    </div>
+                    <div style={{ padding: '7px 8px', display: 'flex', alignItems: 'center', color: 'var(--n-text-2)' }}>
+                      {v.posted}
+                    </div>
+                  </div>
+                );
+              })}
+              {/* Add row */}
+              <button onClick={() => setNewVacancyOpen(true)} style={{ width: '100%', padding: '8px 8px', borderRadius: 0, border: 'none', borderBottom: '1px solid var(--n-divider)', background: 'transparent', cursor: 'pointer', fontSize: 14, color: 'var(--n-text-3)', textAlign: 'left' }}
+                onMouseEnter={e => e.currentTarget.style.background = 'var(--n-hover)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                + Nueva vacante
+              </button>
+              <div style={{ padding: '6px 8px', fontSize: 12, color: 'var(--n-text-3)', display: 'flex', justifyContent: 'space-between' }}>
+                <span>Conteo {VACANCIES.length}</span>
+                <span>{total} candidatos en total</span>
+              </div>
+            </div>
+          )}
+
+          {/* GALLERY VIEW */}
+          {tab === 'gallery' && (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12, padding: '14px 0' }}>
+              {VACANCIES.map(v => {
+                const topC = v.candidates.reduce((b, c) => !b || c.score > b.score ? c : b, null);
+                return (
+                  <div key={v.id} onClick={() => { setVacancy(v); setView('vacancy'); }}
+                    style={{ border: '1px solid var(--n-divider)', borderRadius: 4, cursor: 'pointer', overflow: 'hidden', background: 'var(--n-bg)' }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'var(--n-hover)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'var(--n-bg)'}>
+                    <div style={{ height: 86, background: v.color + '14', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36 }}>
+                      {vacEmoji(v)}
+                    </div>
+                    <div style={{ padding: '10px 12px' }}>
+                      <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--n-text)', marginBottom: 6 }}>{v.title}</div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 6 }}>
+                        <NotionTag color={DEPT_COLOR[v.department] || 'gray'}>{v.department}</NotionTag>
+                        <NotionTag color={PRIORITY_COLOR[v.priority] || 'gray'}>{v.priority}</NotionTag>
+                      </div>
+                      <div style={{ fontSize: 12, color: 'var(--n-text-2)', display: 'flex', justifyContent: 'space-between' }}>
+                        <span>{v.candidates.length} candidatos</span>
+                        {topC && <span>Top {topC.score}</span>}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* BOARD VIEW */}
+          {tab === 'board' && (
+            <div style={{ display: 'flex', gap: 12, padding: '14px 0', overflowX: 'auto' }}>
+              {['alta', 'media', 'baja'].map(prio => (
+                <div key={prio} style={{ minWidth: 240, flex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 6px', marginBottom: 6 }}>
+                    <NotionTag color={PRIORITY_COLOR[prio] || 'gray'}>{prio}</NotionTag>
+                    <span style={{ fontSize: 12, color: 'var(--n-text-3)' }}>{VACANCIES.filter(v => v.priority === prio).length}</span>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    {VACANCIES.filter(v => v.priority === prio).map(v => (
+                      <div key={v.id} onClick={() => { setVacancy(v); setView('vacancy'); }}
+                        style={{ background: 'var(--n-bg)', border: '1px solid var(--n-divider)', borderRadius: 4, padding: '8px 10px', cursor: 'pointer', boxShadow: '0 1px 2px rgba(0,0,0,0.04)' }}
+                        onMouseEnter={e => e.currentTarget.style.background = 'var(--n-hover)'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'var(--n-bg)'}>
+                        <div style={{ fontSize: 14, color: 'var(--n-text)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 5 }}>
+                          <span style={{ fontSize: 15 }}>{vacEmoji(v)}</span> {v.title}
+                        </div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                          <NotionTag color={DEPT_COLOR[v.department] || 'gray'}>{v.department}</NotionTag>
+                          <NotionTag color="gray">{v.candidates.length} candidatos</NotionTag>
+                        </div>
+                      </div>
+                    ))}
+                    <button style={{ padding: '6px 8px', borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 13, color: 'var(--n-text-3)', textAlign: 'left' }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'var(--n-hover)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>+ Nueva</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-        {/* Vacancy grid */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 14 }}>
-          <h2 style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.2px' }}>Mis vacantes</h2>
-          <span style={{ fontSize: 12, color: 'var(--text-3)' }}>Haz clic para ver el pipeline</span>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
-          {VACANCIES.map(v => (
-            <VacancyCard key={v.id} v={v} isHov={hov === v.id} setHov={setHov}
-              onClick={() => { setVacancy(v); setView('vacancy'); }} />
-          ))}
-        </div>
+
+        <div style={{ height: 80 }} />
       </div>
     </div>
   );

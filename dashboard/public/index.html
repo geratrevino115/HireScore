@@ -38,6 +38,14 @@
       --purple:         #7C3AED;
       --purple-light:   #EDE9FE;
       --purple-border:  #DDD6FE;
+      /* Notion tokens (scoped al dashboard "Notion") */
+      --n-bg:           #FFFFFF;
+      --n-surface:      #F7F6F3;
+      --n-hover:        rgba(55,53,47,0.06);
+      --n-divider:      rgba(55,53,47,0.09);
+      --n-text:         #37352F;
+      --n-text-2:       #787774;
+      --n-text-3:       #9B9A97;
     }
 
     /* ── Dark theme ── */
@@ -64,6 +72,13 @@
       --purple:         #A78BFA;
       --purple-light:   rgba(167,139,250,0.12);
       --purple-border:  rgba(167,139,250,0.35);
+      --n-bg:           #191919;
+      --n-surface:      #202020;
+      --n-hover:        rgba(255,255,255,0.055);
+      --n-divider:      rgba(255,255,255,0.094);
+      --n-text:         rgba(255,255,255,0.9);
+      --n-text-2:       rgba(255,255,255,0.6);
+      --n-text-3:       rgba(255,255,255,0.4);
     }
 
     body {
@@ -107,6 +122,14 @@
     /* ── Buttons reset ── */
     button { font-family: inherit; }
     input, textarea, select { font-family: inherit; }
+
+    /* ── Notion-scoped utilities (solo dentro de .notion-page) ── */
+    .notion-page {
+      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+      color: var(--n-text);
+      background: var(--n-bg);
+    }
+    .notion-page ::selection { background: rgba(35,131,226,0.28); }
   </style>
 </head>
 <body>
