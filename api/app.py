@@ -63,3 +63,6 @@ async def health_check():
 
 # Servir el dashboard en /app
 app.mount("/app", StaticFiles(directory="dashboard/public", html=True), name="dashboard")
+
+# UI minimal de pruebas (vanilla HTML/JS) para tocar todos los endpoints
+app.mount("/test", StaticFiles(directory="dashboard/test", html=True), name="test")

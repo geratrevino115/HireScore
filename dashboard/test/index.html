@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HireScore — Test UI</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font: 13px/1.4 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    background: #fafafa;
+    color: #111;
+    padding: 16px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  h1 { font-size: 16px; margin-bottom: 4px; font-weight: 700; }
+  .sub { color: #666; font-size: 12px; margin-bottom: 14px; }
+  .row { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
+  .row > input[type="text"], .row > input[type="email"], .row > input[type="number"] { flex: 1; min-width: 140px; }
+
+  details {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+  details[open] { box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+  summary {
+    padding: 9px 12px;
+    cursor: pointer;
+    user-select: none;
+    font-weight: 600;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::before { content: "▸"; color: #888; font-size: 10px; width: 10px; }
+  details[open] > summary::before { content: "▾"; }
+  summary .tag { font-weight: 400; font-size: 11px; color: #888; background: #eee; padding: 1px 6px; border-radius: 3px; }
+  .body { padding: 12px; border-top: 1px solid #eee; }
+
+  label { font-size: 11px; color: #555; display: block; margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.04em; }
+  input, textarea, select, button {
+    font: inherit;
+    padding: 5px 8px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    background: white;
+    color: #111;
+  }
+  textarea { width: 100%; resize: vertical; min-height: 60px; font-size: 12px; }
+  input[type="file"] { border: none; padding: 0; }
+  select { padding: 5px 8px; }
+  button {
+    cursor: pointer;
+    background: #111;
+    color: white;
+    border-color: #111;
+    padding: 5px 12px;
+    font-weight: 500;
+  }
+  button:hover { background: #333; }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+  button.secondary { background: white; color: #111; }
+  button.secondary:hover { background: #f0f0f0; }
+  button.danger { background: white; color: #c00; border-color: #c00; }
+  button.danger:hover { background: #fff0f0; }
+  button.big { padding: 8px 18px; font-size: 14px; }
+  .field { margin-bottom: 10px; }
+  pre {
+    background: #f4f4f4;
+    border: 1px solid #e0e0e0;
+    border-radius: 3px;
+    padding: 10px;
+    font-size: 11.5px;
+    overflow: auto;
+    max-height: 360px;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  pre.empty { color: #999; font-style: italic; }
+  pre.error { background: #fff0f0; border-color: #f0caca; color: #800; }
+  pre.ok { background: #f8fdf8; border-color: #c8e0c8; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
+  th, td { text-align: left; padding: 5px 8px; border-bottom: 1px solid #eee; }
+  th { font-weight: 600; background: #f8f8f8; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+  .pill { display: inline-block; padding: 1px 7px; border-radius: 100px; font-size: 10.5px; }
+  .pill.ok { background: #d4edda; color: #155724; }
+  .pill.warn { background: #fff3cd; color: #856404; }
+  .pill.bad { background: #f8d7da; color: #721c24; }
+  #health { display: inline-block; margin-left: 6px; }
+  .ms { font-size: 11px; color: #666; }
+  .ms.ok { color: #155724; }
+  .ms.err { color: #721c24; }
+  hr { border: none; border-top: 1px dashed #ddd; margin: 12px 0; }
+
+  .api-config {
+    background: #fff8e0;
+    border: 1px solid #f0d68a;
+    padding: 8px 10px;
+    border-radius: 4px;
+    margin-bottom: 14px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .api-config label { margin: 0; text-transform: none; letter-spacing: 0; font-size: 12px; color: #444; }
+  .api-config input { flex: 1; }
+
+  /* ── Wizard ── */
+  .wizard {
+    background: white;
+    border: 2px solid #111;
+    border-radius: 6px;
+    padding: 16px;
+    margin-bottom: 18px;
+  }
+  .wizard h2 { font-size: 14px; margin-bottom: 4px; font-weight: 700; }
+  .wizard .sub { color: #666; font-size: 12px; margin-bottom: 14px; }
+  .step {
+    border-left: 3px solid #ddd;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    background: #fafafa;
+    border-radius: 0 4px 4px 0;
+  }
+  .step.active { border-left-color: #111; background: white; }
+  .step.done { border-left-color: #28a745; }
+  .step-title {
+    font-weight: 600;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  .step-title .num {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: #ddd; color: white;
+    font-size: 11px; font-weight: 700;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .step.active .step-title .num { background: #111; }
+  .step.done .step-title .num { background: #28a745; }
+  .step.done .step-title .num::before { content: "✓"; }
+  .step.done .step-title .num { font-size: 0; }
+  .step.done .step-title .num::before { font-size: 11px; }
+
+  .picked {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 9px; border-radius: 100px;
+    background: #e8f5e8; color: #1e5a1e; font-size: 11.5px; font-weight: 600;
+    margin-left: 6px;
+  }
+  .toggle {
+    display: inline-flex; gap: 0; margin-bottom: 8px;
+    border: 1px solid #ccc; border-radius: 3px; overflow: hidden;
+  }
+  .toggle button {
+    background: white; color: #555; border: none; padding: 4px 12px;
+    font-size: 12px; font-weight: 500;
+  }
+  .toggle button.active { background: #111; color: white; }
+  .score-box {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 12px; padding: 12px;
+    background: #f8fdf8; border: 1px solid #c8e0c8; border-radius: 4px;
+  }
+  .score-num {
+    font-size: 36px; font-weight: 800; line-height: 1; color: #155724;
+    font-variant-numeric: tabular-nums;
+  }
+  .score-num.warn { color: #856404; }
+  .score-num.bad { color: #721c24; }
+  .score-meta { font-size: 12px; color: #555; }
+  .desglose-table th, .desglose-table td { padding: 4px 8px; font-size: 11.5px; }
+
+  .explain { font-size: 12px; color: #555; margin-bottom: 8px; line-height: 1.5; }
+  .explain code { background: #f0f0f0; padding: 1px 5px; border-radius: 3px; font-size: 11px; }
+  .explain em { color: #111; font-style: normal; font-weight: 600; }
+  .explain strong { color: #111; }
+  .explain-sub { font-size: 11px; color: #777; margin: 4px 0 8px; line-height: 1.4; }
+  .explain-sub code { background: #f0f0f0; padding: 0 4px; border-radius: 2px; font-size: 10.5px; }
+  .explain-sub em { color: #333; font-style: italic; }
+  .pipeline-list { margin: 0 0 12px 22px; font-size: 11.5px; color: #555; }
+  .pipeline-list li { margin: 2px 0; }
+  .pipeline-list code, .pipeline-list strong { color: #111; font-weight: 600; }
+  .pipeline-list code { background: #f0f0f0; padding: 0 4px; border-radius: 2px; font-size: 10.5px; }
+
+  .draft-box {
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: #f0f7ff;
+    border: 1px solid #cce0ff;
+    border-radius: 4px;
+  }
+  .draft-title { font-weight: 600; font-size: 12px; color: #1a4480; margin-bottom: 6px; }
+
+  .guia-card {
+    background: #fcfcfc; border: 1px solid #e0e0e0; border-left: 3px solid #6366f1;
+    padding: 8px 10px; margin-bottom: 6px; border-radius: 3px;
+  }
+  .guia-card .q { font-weight: 600; font-size: 12.5px; color: #111; }
+  .guia-card .meta { font-size: 10.5px; color: #888; margin-top: 3px; }
+  .guia-card .obj { font-size: 11.5px; color: #555; font-style: italic; margin-top: 3px; }
+
+  .pipeline-cols {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 8px;
+  }
+  .pipe-col {
+    background: #f8f8f8; border: 1px solid #e0e0e0; border-radius: 4px;
+    padding: 8px; min-height: 80px;
+  }
+  .pipe-col h4 {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;
+    color: #666; font-weight: 700; margin-bottom: 6px;
+    display: flex; justify-content: space-between;
+  }
+  .pipe-col h4 .count {
+    background: #e0e0e0; color: #333; padding: 1px 7px; border-radius: 100px;
+    font-size: 10px; font-weight: 700;
+  }
+  .pipe-card {
+    background: white; border: 1px solid #d0d0d0; border-radius: 3px;
+    padding: 6px 8px; margin-bottom: 5px; font-size: 11.5px;
+  }
+  .pipe-card .name { font-weight: 600; color: #111; }
+  .pipe-card .row2 { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; gap: 4px; }
+  .pipe-card select { font-size: 10.5px; padding: 1px 3px; flex: 1; }
+  .pipe-card .sc { font-variant-numeric: tabular-nums; font-weight: 700; }
+  .pipe-card .sc.ok { color: #28a745; }
+  .pipe-card .sc.warn { color: #b87a00; }
+  .pipe-card .sc.bad { color: #c00; }
+</style>
+</head>
+<body>
+
+<h1>HireScore — Test UI</h1>
+<div class="sub">Wizard end-to-end arriba · secciones manuales por endpoint abajo</div>
+
+<div class="api-config">
+  <label for="apiBase">API base:</label>
+  <input id="apiBase" type="text" value="http://localhost:8000" />
+  <span id="health" class="pill warn">desconocido</span>
+  <button class="secondary" id="btnHealth">Ping /health</button>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- WIZARD END-TO-END                                                    -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<div class="wizard">
+  <h2>🎯 Flujo end-to-end</h2>
+  <div class="sub">Vacante → guía de entrevista → candidato (CV) → pipeline. Sigue el orden de <code>FLUJO.md</code>.</div>
+
+  <!-- ════════════════════════════════════════════════════════════════════
+       PASO 1 — CREAR O ELEGIR VACANTE
+       ════════════════════════════════════════════════════════════════════ -->
+  <div class="step active" id="step1">
+    <div class="step-title">
+      <span class="num">1</span> Crear o elegir vacante
+      <span id="vacPicked" style="display:none;" class="picked"></span>
+    </div>
+    <div class="explain">
+      Una vacante guarda <em>título</em>, <em>descripción</em> y <em>requisitos</em>.
+      El backend luego los usa para extraer skills estructurados, calcular score y generar la guía de entrevista.
+    </div>
+
+    <div class="toggle">
+      <button class="active" data-mode="existing" data-target="vacMode">📂 Elegir existente</button>
+      <button                 data-mode="file"     data-target="vacMode">📄 Subir JD (PDF/DOCX)</button>
+      <button                 data-mode="ai"       data-target="vacMode">🤖 IA asistida</button>
+      <button                 data-mode="manual"   data-target="vacMode">✍️ Manual</button>
+    </div>
+
+    <!-- 1a. Existente -->
+    <div id="vacMode_existing">
+      <div class="explain-sub">→ Lista todas las vacantes en BD (<code>GET /vacancies/</code>).</div>
+      <div class="row">
+        <select id="vacSelect" style="flex:1; min-width:200px;">
+          <option value="">— cargando vacantes… —</option>
+        </select>
+        <button class="secondary" id="btnVacReload">↻</button>
+        <button id="btnVacPick">Usar esta vacante</button>
+      </div>
+    </div>
+
+    <!-- 1b. Subir JD -->
+    <div id="vacMode_file" style="display:none;">
+      <div class="explain-sub">
+        → Sube PDF/DOCX con la descripción de la vacante.
+        El LLM extrae <em>título</em>, <em>descripción</em> y <em>requisitos</em>
+        (<code>POST /vacancies/extraer-desde-archivo</code>).
+        Devuelve un borrador editable; nada se guarda todavía.
+      </div>
+      <div class="row">
+        <input id="fileJd" type="file" accept=".pdf,.docx" />
+        <button id="btnExtractFile">Extraer del archivo</button>
+      </div>
+      <div id="draftFile" style="display:none;" class="draft-box">
+        <div class="draft-title">📝 Borrador extraído — revisa y edita</div>
+        <input id="fileDraftTitulo" type="text" placeholder="Título" style="width:100%; margin-bottom:6px;" />
+        <textarea id="fileDraftDesc" placeholder="Descripción" style="margin-bottom:6px;"></textarea>
+        <textarea id="fileDraftReq" placeholder="Requisitos"></textarea>
+        <div class="row" style="margin-top:6px;">
+          <button id="btnSaveFromFile">✓ Crear vacante con este borrador</button>
+          <button class="secondary" id="btnDiscardFile">Descartar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1c. IA asistida -->
+    <div id="vacMode_ai" style="display:none;">
+      <div class="explain-sub">
+        → No tienes la JD. Llenas <em>puesto, seniority, stack…</em> y el LLM
+        propone una vacante completa (<code>POST /vacancies/generar</code>).
+        También devuelve borrador editable; nada se guarda todavía.
+      </div>
+      <div class="grid-2">
+        <div>
+          <label>Puesto*</label>
+          <input id="aiPuesto" type="text" placeholder="ej: Senior Backend Engineer" />
+        </div>
+        <div>
+          <label>Seniority</label>
+          <input id="aiSeniority" type="text" placeholder="junior · mid · senior · lead" />
+        </div>
+        <div>
+          <label>Industria</label>
+          <input id="aiIndustria" type="text" placeholder="fintech · ecommerce…" />
+        </div>
+        <div>
+          <label>Stack (coma)</label>
+          <input id="aiStack" type="text" placeholder="Python, FastAPI, PostgreSQL, AWS" />
+        </div>
+      </div>
+      <div class="field" style="margin-top:6px;">
+        <label>Responsabilidades clave</label>
+        <textarea id="aiResp" placeholder="Liderar el desarrollo de la plataforma de pagos…"></textarea>
+      </div>
+      <div class="field">
+        <label>Notas extra (opcional)</label>
+        <textarea id="aiNotas" placeholder="Equipo remoto LATAM, on-call rotatorio…"></textarea>
+      </div>
+      <button id="btnGenAi">🤖 Generar borrador con IA</button>
+      <div id="draftAi" style="display:none;" class="draft-box">
+        <div class="draft-title">📝 Borrador IA — revisa y edita</div>
+        <input id="aiDraftTitulo" type="text" placeholder="Título" style="width:100%; margin-bottom:6px;" />
+        <textarea id="aiDraftDesc" placeholder="Descripción" style="margin-bottom:6px;"></textarea>
+        <textarea id="aiDraftReq" placeholder="Requisitos"></textarea>
+        <div class="row" style="margin-top:6px;">
+          <button id="btnSaveFromAi">✓ Crear vacante con este borrador</button>
+          <button class="secondary" id="btnDiscardAi">Descartar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1d. Manual -->
+    <div id="vacMode_manual" style="display:none;">
+      <div class="explain-sub">→ Llenas el formulario tú mismo (<code>POST /vacancies/</code>).</div>
+      <input id="newVacTitulo" type="text" placeholder="Título" style="width:100%; margin-bottom:6px;" />
+      <textarea id="newVacRequisitos" placeholder="Requisitos (texto libre) — ej: 5+ años Python, FastAPI, PostgreSQL"></textarea>
+      <textarea id="newVacDescripcion" placeholder="Descripción (opcional)" style="margin-top:6px;"></textarea>
+      <div class="row" style="margin-top:6px;">
+        <button id="btnNewVac">Crear vacante</button>
+      </div>
+    </div>
+
+    <span class="ms" id="vacMs"></span>
+    <pre id="vacOut" class="empty" style="display:none;">— sin respuesta —</pre>
+
+    <!-- 1.5 — Guía de entrevista (aparece tras tener vacante) -->
+    <div id="guiaPanel" style="display:none; margin-top:14px; padding-top:12px; border-top:1px dashed #ccc;">
+      <div class="step-title" style="font-size:12px;">
+        <span style="color:#888;">📋</span> Guía de entrevista (opcional pero recomendado por FLUJO.md)
+      </div>
+      <div class="explain-sub">
+        Genera preguntas + criterios de evaluación a partir de los requisitos
+        (<code>POST /vacancies/{id}/guia-entrevista</code>). Se reutiliza en la entrevista del candidato.
+      </div>
+      <div class="row">
+        <button id="btnGenGuia">🪄 Generar guía con IA</button>
+        <button class="secondary" id="btnGetGuia">Ver guía existente</button>
+        <button class="secondary" id="btnNextStep">Continuar al paso 2 →</button>
+      </div>
+      <div id="guiaOut" style="display:none; margin-top:8px;"></div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════
+       PASO 2 — AGREGAR CANDIDATO (CV)
+       ════════════════════════════════════════════════════════════════════ -->
+  <div class="step" id="step2">
+    <div class="step-title">
+      <span class="num">2</span> Agregar candidato — subir CV
+      <span id="procMs" class="ms"></span>
+    </div>
+    <div class="explain">
+      <strong>Una sola llamada</strong> (<code>POST /analyses/procesar</code>) ejecuta todo el pipeline:
+    </div>
+    <ol class="pipeline-list">
+      <li>📄 Guarda el CV (PDF/DOCX) en <code>data/cv_data/</code></li>
+      <li>🧠 Extrae datos estructurados con el LLM (nombre, email, skills, experiencia, educación)</li>
+      <li>👤 <em>Dedupe</em>: si no pasas <code>candidato_id</code>, busca por el email del CV; si no existe, crea uno</li>
+      <li>📐 Calcula score vs requisitos con pesos (default o custom) + sentimiento si hay audio</li>
+      <li>📋 Crea <code>Aplicacion</code> en etapa <strong>nueva</strong> (pivote candidato↔vacante)</li>
+      <li>💾 Persiste <code>Analisis</code> con desglose y registra costo LLM</li>
+    </ol>
+    <div class="row">
+      <div style="flex:1; min-width:200px;">
+        <label>CV * (PDF o DOCX)</label>
+        <input id="wizCv" type="file" accept=".pdf,.docx" />
+      </div>
+      <div style="flex:1; min-width:200px;">
+        <label>Audio entrevista (opcional, .wav/.mp3/.m4a)</label>
+        <input id="wizAudio" type="file" accept="audio/*" />
+      </div>
+      <div style="min-width:160px;">
+        <label>candidato_id (opcional)</label>
+        <input id="wizCandId" type="number" placeholder="dedupe por email si vacío" />
+      </div>
+    </div>
+    <div class="row">
+      <button class="big" id="btnProcesar" disabled>▶ Procesar análisis (sync)</button>
+      <button class="secondary" id="btnProcesarAsync" disabled>Procesar (async + poll)</button>
+    </div>
+    <pre id="procOut" class="empty" style="display:none;">— sin respuesta —</pre>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════
+       PASO 3 — RESULTADO + PIPELINE
+       ════════════════════════════════════════════════════════════════════ -->
+  <div class="step" id="step3">
+    <div class="step-title">
+      <span class="num">3</span> Resultado + pipeline
+      <span id="anaPicked" style="display:none;" class="picked"></span>
+    </div>
+    <div class="explain">
+      Score del candidato + estado del pipeline de la vacante. Puedes mover candidatos entre etapas
+      (<code>PATCH /aplicaciones/{id}/etapa</code>) para simular el kanban.
+    </div>
+
+    <div id="resultBox">
+      <div style="color:#888; font-size:12px; font-style:italic;">Aparecerá aquí cuando termine el paso 2…</div>
+    </div>
+
+    <div class="row" id="resultActions" style="display:none; margin-top:8px;">
+      <button class="secondary" id="btnExplicacion">📊 Explicación completa</button>
+      <button class="secondary" id="btnCosto">💰 Costo del análisis</button>
+      <button class="secondary" id="btnRefreshPipe">↻ Refrescar pipeline</button>
+    </div>
+
+    <div id="pipelineBox" style="display:none; margin-top:14px;"></div>
+    <pre id="extraOut" class="empty" style="display:none;">— sin respuesta —</pre>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- SECCIONES MANUALES                                                   -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<div style="font-size:12px; color:#666; margin: 18px 0 8px; text-transform:uppercase; letter-spacing:0.05em; font-weight:600;">Acceso manual por endpoint</div>
+
+<!-- ════════════════════════════════════════════════ -->
+<details>
+  <summary>Health <span class="tag">GET /health</span></summary>
+  <div class="body">
+    <button id="btnHealth2">Comprobar</button>
+    <span class="ms" id="healthMs"></span>
+    <pre id="healthOut" class="empty">— sin respuesta —</pre>
+  </div>
+</details>
+
+<!-- ════════════════════════════════════════════════ -->
+<details>
+  <summary>Vacantes <span class="tag">/vacancies</span></summary>
+  <div class="body">
+    <div class="field">
+      <label>Crear vacante (POST /vacancies/)</label>
+      <input id="vTitulo" type="text" placeholder="Título" style="width:100%; margin-bottom:6px;" />
+      <textarea id="vDescripcion" placeholder="Descripción"></textarea>
+      <textarea id="vRequisitos" placeholder="Requisitos (texto libre)" style="margin-top:6px;"></textarea>
+      <div class="row" style="margin-top:6px;">
+        <button id="btnCreateVac">Crear vacante</button>
+        <button class="secondary" id="btnListVac">Listar todas</button>
+        <button class="secondary" id="btnVacFromFile">Extraer de archivo (LLM)</button>
+        <input id="vFile" type="file" accept=".pdf,.docx,.txt" />
+      </div>
+      <span class="ms" id="vMs"></span>
+      <pre id="vOut" class="empty">— sin respuesta —</pre>
+    </div>
+
+    <hr/>
+
+    <div class="field">
+      <label>Operaciones por vacante</label>
+      <div class="row">
+        <input id="vId" type="number" placeholder="vacante_id" style="width:120px;" />
+        <button class="secondary" id="btnGetVac">GET detalle</button>
+        <button class="secondary" id="btnRanking2">Ranking</button>
+        <button class="secondary" id="btnPipeline">Pipeline</button>
+        <button class="secondary" id="btnAplicaciones">Aplicaciones</button>
+        <button class="secondary" id="btnCostoVac">Costo total</button>
+      </div>
+      <div class="row" style="margin-top:6px;">
+        <input id="vReqText" type="text" placeholder='Requisitos texto (PUT requisitos)' style="flex:1;" />
+        <button class="secondary" id="btnPutReq">PUT requisitos</button>
+      </div>
+      <div class="row" style="margin-top:6px;">
+        <input id="vPesosJson" type="text" placeholder='Pesos JSON: {"match_skills_obligatorios":0.3,...}' style="flex:1;" />
+        <button class="secondary" id="btnPutPesos">PUT pesos</button>
+        <button class="danger" id="btnDelPesos">DELETE pesos</button>
+      </div>
+      <span class="ms" id="vDetMs"></span>
+      <pre id="vDetOut" class="empty">— sin respuesta —</pre>
+    </div>
+  </div>
+</details>
+
+<!-- ════════════════════════════════════════════════ -->
+<details>
+  <summary>Candidatos <span class="tag">/candidates</span></summary>
+  <div class="body">
+    <div class="row">
+      <input id="cNombre" type="text" placeholder="Nombre" />
+      <input id="cEmail" type="email" placeholder="email@dominio.com" />
+      <input id="cTel" type="text" placeholder="Tel" style="width:120px;" />
+      <button id="btnCreateCand">Crear</button>
+      <button class="secondary" id="btnListCand">Listar todos</button>
+    </div>
+    <span class="ms" id="cMs"></span>
+    <pre id="cOut" class="empty">— sin respuesta —</pre>
+  </div>
+</details>
+
+<!-- ════════════════════════════════════════════════ -->
+<details>
+  <summary>Uploads <span class="tag">/upload/cv · /upload/audio · /upload/requisitos</span></summary>
+  <div class="body">
+    <div class="grid-2">
+      <div class="field">
+        <label>CV (PDF/DOCX)</label>
+        <input id="upCv" type="file" accept=".pdf,.docx" />
+        <button class="secondary" id="btnUpCv" style="margin-top:6px;">Subir CV</button>
+      </div>
+      <div class="field">
+        <label>Audio entrevista</label>
+        <input id="upAudio" type="file" accept="audio/*" />
+        <button class="secondary" id="btnUpAudio" style="margin-top:6px;">Subir audio</button>
+      </div>
+      <div class="field">
+        <label>Requisitos (PDF/DOCX/TXT)</label>
+        <input id="upReq" type="file" accept=".pdf,.docx,.txt" />
+        <button class="secondary" id="btnUpReq" style="margin-top:6px;">Subir requisitos</button>
+      </div>
+    </div>
+    <span class="ms" id="upMs"></span>
+    <pre id="upOut" class="empty">— sin respuesta —</pre>
+  </div>
+</details>
+
+<!-- ════════════════════════════════════════════════ -->
+<details>
+  <summary>Análisis <span class="tag">/analyses</span></summary>
+  <div class="body">
+    <div class="row">
+      <input id="aVac" type="number" placeholder="vacante_id" style="width:110px;" />
+      <input id="aCand" type="number" placeholder="candidato_id (opcional)" style="width:170px;" />
+      <input id="aCv" type="file" accept=".pdf,.docx" />
+      <input id="aAudio" type="file" accept="audio/*" />
+      <button id="btnProcSync">Procesar (sync)</button>
+      <button class="secondary" id="btnProcAsync">Procesar (async)</button>
+    </div>
+    <hr/>
+    <div class="row">
+      <input id="aId" type="number" placeholder="analisis_id" style="width:120px;" />
+      <button class="secondary" id="btnExpl">Explicación</button>
+      <button class="secondary" id="btnCostoAna">Costo</button>
+      <button class="secondary" id="btnListByVac">Listar por vacante</button>
+    </div>
+    <span class="ms" id="aMs"></span>
+    <pre id="aOut" class="empty">— sin respuesta —</pre>
+  </div>
+</details>
+
+<!-- ════════════════════════════════════════════════ -->
+<details>
+  <summary>Aplicaciones <span class="tag">PATCH /aplicaciones/{id}</span></summary>
+  <div class="body">
+    <div class="row">
+      <input id="apId" type="number" placeholder="aplicacion_id" style="width:120px;" />
+      <button class="secondary" id="btnApGet">GET</button>
+    </div>
+    <div class="row">
+      <input id="apEtapa" type="text" placeholder="nueva etapa (nueva|en_revision|shortlist|entrevista|entrevista_tecnica|oferta|rechazada)" style="flex:1;" />
+      <button class="secondary" id="btnApEtapa">PATCH etapa</button>
+    </div>
+    <div class="row">
+      <input id="apNotas" type="text" placeholder="Notas" />
+      <button class="secondary" id="btnApNotas">PATCH notas</button>
+    </div>
+    <div class="row">
+      <input id="apAudio" type="file" accept="audio/*" />
+      <button class="secondary" id="btnApAudio">POST audio (evaluación)</button>
+    </div>
+    <span class="ms" id="apMs"></span>
+    <pre id="apOut" class="empty">— sin respuesta —</pre>
+  </div>
+</details>
+
+<!-- ════════════════════════════════════════════════ -->
+<details>
+  <summary>Ollama / LLM <span class="tag">/generate · /generate_keypoints</span></summary>
+  <div class="body">
+    <div class="field">
+      <label>Prompt</label>
+      <textarea id="lPrompt" placeholder="Escribe un prompt..."></textarea>
+      <div class="row" style="margin-top:6px;">
+        <button id="btnGenerate">POST /generate</button>
+        <button class="secondary" id="btnKeypoints">POST /generate_keypoints</button>
+      </div>
+    </div>
+    <span class="ms" id="lMs"></span>
+    <pre id="lOut" class="empty">— sin respuesta —</pre>
+  </div>
+</details>
+
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+  const apiBase = () => $('apiBase').value.replace(/\/+$/, '');
+
+  function show(targetId, data, isError) {
+    const el = $(targetId);
+    el.style.display = '';
+    el.className = isError ? 'error' : 'ok';
+    if (typeof data === 'string') el.textContent = data;
+    else el.textContent = JSON.stringify(data, null, 2);
+  }
+  function setMs(targetId, ms, isError) {
+    const el = $(targetId);
+    el.textContent = ms !== null ? `(${ms} ms)` : '';
+    el.className = 'ms ' + (isError ? 'err' : 'ok');
+  }
+  async function call(method, path, opts = {}) {
+    const t0 = performance.now();
+    try {
+      const url = apiBase() + path;
+      const init = { method, ...opts };
+      if (opts.json) {
+        init.headers = { 'Content-Type': 'application/json', ...(init.headers || {}) };
+        init.body = JSON.stringify(opts.json);
+        delete init.json;
+      }
+      const r = await fetch(url, init);
+      const ms = Math.round(performance.now() - t0);
+      const ct = r.headers.get('content-type') || '';
+      const body = ct.includes('application/json') ? await r.json() : await r.text();
+      return { ok: r.ok, status: r.status, body, ms };
+    } catch (e) {
+      return { ok: false, status: 0, body: { error: e.message }, ms: Math.round(performance.now() - t0) };
+    }
+  }
+  function runAndShow(promise, outId, msId) {
+    promise.then(({ ok, body, ms }) => {
+      show(outId, body, !ok);
+      setMs(msId, ms, !ok);
+    });
+  }
+
+  // ── Toggles (genérico: muestra solo el panel que matchea el modo activo) ──
+  document.querySelectorAll('.toggle').forEach(group => {
+    const target = group.querySelector('button').dataset.target;
+    const modes = Array.from(group.querySelectorAll('button')).map(b => b.dataset.mode);
+    group.querySelectorAll('button').forEach(btn => {
+      btn.onclick = () => {
+        group.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const active = btn.dataset.mode;
+        modes.forEach(m => {
+          const panel = document.getElementById(target + '_' + m);
+          if (panel) panel.style.display = m === active ? '' : 'none';
+        });
+      };
+    });
+  });
+
+  // ── Health ──────────────────────────────────────────
+  async function ping() {
+    const { ok, body, ms } = await call('GET', '/health');
+    const pill = $('health');
+    if (ok && body.status === 'ok') { pill.textContent = 'ok'; pill.className = 'pill ok'; }
+    else if (ok && body.status === 'degradado') { pill.textContent = 'degradado'; pill.className = 'pill warn'; }
+    else { pill.textContent = 'down'; pill.className = 'pill bad'; }
+    show('healthOut', body, !ok);
+    setMs('healthMs', ms, !ok);
+  }
+  $('btnHealth').onclick = ping;
+  $('btnHealth2').onclick = ping;
+
+  // ════════════════════════════════════════════════════════════════════
+  // WIZARD STATE
+  // ════════════════════════════════════════════════════════════════════
+  const state = { vacanteId: null, vacanteTitulo: null, analisisId: null };
+
+  function activateStep(n) {
+    [1,2,3].forEach(i => {
+      const el = $('step' + i);
+      el.classList.remove('active');
+      if (i < n) el.classList.add('done');
+      else el.classList.remove('done');
+    });
+    $('step' + n).classList.add('active');
+  }
+  function markDone(n) {
+    $('step' + n).classList.add('done');
+    $('step' + n).classList.remove('active');
+  }
+
+  // ── Cargar lista de vacantes ───────────────────────
+  async function loadVacancies() {
+    $('vacSelect').innerHTML = '<option value="">— cargando… —</option>';
+    const { ok, body } = await call('GET', '/vacancies/');
+    if (!ok) {
+      $('vacSelect').innerHTML = `<option value="">— error: ${body.error || body.detail || 'ver consola'} —</option>`;
+      return;
+    }
+    if (!body.length) {
+      $('vacSelect').innerHTML = '<option value="">— ninguna vacante — crea una abajo —</option>';
+      return;
+    }
+    $('vacSelect').innerHTML = '<option value="">— elige una vacante —</option>' +
+      body.map(v => `<option value="${v.id}" data-titulo="${(v.titulo||'').replace(/"/g,'&quot;')}">#${v.id} · ${v.titulo}</option>`).join('');
+  }
+  $('btnVacReload').onclick = loadVacancies;
+
+  function setVacante(id, titulo, sourceMsg) {
+    state.vacanteId = id;
+    state.vacanteTitulo = titulo;
+    $('vacPicked').textContent = `✓ ${sourceMsg || 'Vacante'} #${id} · ${titulo}`;
+    $('vacPicked').style.display = '';
+    $('guiaPanel').style.display = '';
+    $('btnProcesar').disabled = false;
+    $('btnProcesarAsync').disabled = false;
+    $('step1').classList.add('done');
+    activateStep(2);
+  }
+
+  // 1a. Elegir existente
+  $('btnVacPick').onclick = () => {
+    const sel = $('vacSelect');
+    if (!sel.value) return alert('Selecciona una vacante');
+    setVacante(Number(sel.value), sel.options[sel.selectedIndex].dataset.titulo, 'Vacante');
+  };
+
+  // 1b. Extraer de archivo (PDF/DOCX)
+  $('btnExtractFile').onclick = async () => {
+    const f = $('fileJd').files[0];
+    if (!f) return alert('Sube un archivo PDF/DOCX');
+    const fd = new FormData(); fd.append('file', f);
+    setMs('vacMs', null, false);
+    $('btnExtractFile').disabled = true;
+    $('btnExtractFile').textContent = 'Extrayendo con LLM…';
+    const { ok, body, ms } = await call('POST', '/vacancies/extraer-desde-archivo', { body: fd });
+    $('btnExtractFile').disabled = false;
+    $('btnExtractFile').textContent = 'Extraer del archivo';
+    setMs('vacMs', ms, !ok);
+    if (!ok) { show('vacOut', body, true); return; }
+    $('fileDraftTitulo').value = body.titulo || '';
+    $('fileDraftDesc').value = body.descripcion || '';
+    $('fileDraftReq').value = body.requisitos_texto || '';
+    $('draftFile').style.display = '';
+  };
+  $('btnDiscardFile').onclick = () => { $('draftFile').style.display = 'none'; };
+  $('btnSaveFromFile').onclick = async () => {
+    const titulo = $('fileDraftTitulo').value.trim();
+    if (!titulo) return alert('Título requerido');
+    const { ok, body, ms } = await call('POST', '/vacancies/', {
+      json: {
+        titulo,
+        descripcion: $('fileDraftDesc').value || null,
+        requisitos_texto: $('fileDraftReq').value || null,
+      }
+    });
+    setMs('vacMs', ms, !ok);
+    if (!ok) { show('vacOut', body, true); return; }
+    setVacante(body.id, body.titulo, 'Creada desde archivo');
+    loadVacancies();
+  };
+
+  // 1c. IA asistida (generar)
+  $('btnGenAi').onclick = async () => {
+    const puesto = $('aiPuesto').value.trim();
+    if (!puesto) return alert('Puesto es requerido');
+    const stack = $('aiStack').value.split(',').map(s => s.trim()).filter(Boolean);
+    setMs('vacMs', null, false);
+    $('btnGenAi').disabled = true;
+    $('btnGenAi').textContent = '🤖 Generando con LLM… (puede tardar 30-60s)';
+    const { ok, body, ms } = await call('POST', '/vacancies/generar', { json: {
+      puesto,
+      seniority: $('aiSeniority').value || null,
+      industria: $('aiIndustria').value || null,
+      stack,
+      responsabilidades: $('aiResp').value || null,
+      notas: $('aiNotas').value || null,
+    }});
+    $('btnGenAi').disabled = false;
+    $('btnGenAi').textContent = '🤖 Generar borrador con IA';
+    setMs('vacMs', ms, !ok);
+    if (!ok) { show('vacOut', body, true); return; }
+    $('aiDraftTitulo').value = body.titulo || puesto;
+    $('aiDraftDesc').value = body.descripcion || '';
+    $('aiDraftReq').value = body.requisitos_texto || '';
+    $('draftAi').style.display = '';
+  };
+  $('btnDiscardAi').onclick = () => { $('draftAi').style.display = 'none'; };
+  $('btnSaveFromAi').onclick = async () => {
+    const titulo = $('aiDraftTitulo').value.trim();
+    if (!titulo) return alert('Título requerido');
+    const { ok, body, ms } = await call('POST', '/vacancies/', {
+      json: {
+        titulo,
+        descripcion: $('aiDraftDesc').value || null,
+        requisitos_texto: $('aiDraftReq').value || null,
+      }
+    });
+    setMs('vacMs', ms, !ok);
+    if (!ok) { show('vacOut', body, true); return; }
+    setVacante(body.id, body.titulo, 'Creada con IA');
+    loadVacancies();
+  };
+
+  // 1d. Manual
+  $('btnNewVac').onclick = async () => {
+    const titulo = $('newVacTitulo').value.trim();
+    if (!titulo) return alert('Título requerido');
+    const { ok, body, ms } = await call('POST', '/vacancies/', {
+      json: {
+        titulo,
+        descripcion: $('newVacDescripcion').value || null,
+        requisitos_texto: $('newVacRequisitos').value || null,
+      }
+    });
+    setMs('vacMs', ms, !ok);
+    if (!ok) { show('vacOut', body, true); return; }
+    setVacante(body.id, body.titulo, 'Creada manual');
+    loadVacancies();
+  };
+
+  // ── Guía de entrevista ──────────────────────────────
+  function renderGuia(g) {
+    if (!g || !g.preguntas) { $('guiaOut').innerHTML = '<div style="color:#888; font-style:italic;">Sin preguntas.</div>'; $('guiaOut').style.display = ''; return; }
+    const preg = g.preguntas.map(p => `
+      <div class="guia-card">
+        <div class="q">${p.pregunta}</div>
+        <div class="meta">
+          ${p.tipo ? `<span style="background:#e7e7ff; color:#4a4ad2; padding:0 5px; border-radius:2px;">${p.tipo}</span>` : ''}
+          ${p.skill_relacionada ? `· skill: <strong>${p.skill_relacionada}</strong>` : ''}
+        </div>
+        ${p.objetivo ? `<div class="obj">↳ ${p.objetivo}</div>` : ''}
+      </div>
+    `).join('');
+    const crit = (g.criterios_evaluacion || []).map(c => `<li>${c}</li>`).join('');
+    const sen  = (g.senales_de_alerta || []).map(s => `<li>${s}</li>`).join('');
+    $('guiaOut').innerHTML = `
+      <div style="display:grid; grid-template-columns: 1.5fr 1fr; gap: 10px;">
+        <div>
+          <div style="font-weight:600; font-size:12px; margin-bottom:5px;">Preguntas (${g.preguntas.length})</div>
+          <div style="max-height:300px; overflow:auto; padding-right:4px;">${preg}</div>
+        </div>
+        <div>
+          ${crit ? `<div style="font-weight:600; font-size:12px; margin-bottom:5px;">✅ Criterios de evaluación</div><ul style="font-size:11.5px; color:#444; padding-left:18px;">${crit}</ul>` : ''}
+          ${sen ? `<div style="font-weight:600; font-size:12px; margin: 8px 0 5px;">⚠️ Señales de alerta</div><ul style="font-size:11.5px; color:#900; padding-left:18px;">${sen}</ul>` : ''}
+        </div>
+      </div>
+      <div style="font-size:10.5px; color:#888; margin-top:6px;">generada ${g.generada_en}</div>
+    `;
+    $('guiaOut').style.display = '';
+  }
+  $('btnGenGuia').onclick = async () => {
+    if (!state.vacanteId) return alert('Primero elige/crea una vacante');
+    $('btnGenGuia').disabled = true;
+    $('btnGenGuia').textContent = '🪄 Generando guía con LLM…';
+    const { ok, body } = await call('POST', `/vacancies/${state.vacanteId}/guia-entrevista`);
+    $('btnGenGuia').disabled = false;
+    $('btnGenGuia').textContent = '🪄 Generar guía con IA';
+    if (!ok) { show('vacOut', body, true); return; }
+    renderGuia(body);
+  };
+  $('btnGetGuia').onclick = async () => {
+    if (!state.vacanteId) return alert('Primero elige/crea una vacante');
+    const { ok, body } = await call('GET', `/vacancies/${state.vacanteId}/guia-entrevista`);
+    if (!ok) { $('guiaOut').innerHTML = `<div style="color:#900;">${body.detail || JSON.stringify(body)}</div>`; $('guiaOut').style.display = ''; return; }
+    renderGuia(body);
+  };
+  $('btnNextStep').onclick = () => {
+    document.getElementById('step2').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+
+  // ── Procesar análisis ───────────────────────────────
+  function buildProcesarForm() {
+    const cv = $('wizCv').files[0];
+    if (!cv) { alert('Selecciona un CV'); return null; }
+    const fd = new FormData();
+    fd.append('cv_file', cv);
+    const audio = $('wizAudio').files[0];
+    if (audio) fd.append('audio_file', audio);
+    const cand = $('wizCandId').value;
+    if (cand) fd.append('candidato_id', cand);
+    fd.append('vacante_id', state.vacanteId);
+    return fd;
+  }
+
+  function scoreClass(s) { return s >= 75 ? 'ok' : s >= 60 ? 'warn' : 'bad'; }
+
+  function renderResultado(body) {
+    state.analisisId = body.analisis.id;
+    $('anaPicked').textContent = `✓ Análisis #${body.analisis.id} · App #${body.aplicacion.id} · ${body.candidato_creado ? 'candidato CREADO' : 'candidato REUSADO'}`;
+    $('anaPicked').style.display = '';
+    const score = body.analisis.puntaje_total;
+    const desglose = body.analisis.desglose || [];
+    const rows = desglose.map(d => `
+      <tr>
+        <td>${d.categoria}</td>
+        <td style="text-align:right; font-variant-numeric: tabular-nums;">${d.puntaje}</td>
+        <td style="text-align:right; font-variant-numeric: tabular-nums;">${d.peso ?? '—'}</td>
+        <td style="text-align:right; font-variant-numeric: tabular-nums;">${d.contribucion ?? '—'}</td>
+        <td style="color:#555;">${d.comentario || ''}</td>
+      </tr>`).join('');
+    $('resultBox').innerHTML = `
+      <div class="score-box">
+        <div class="score-num ${scoreClass(score) === 'ok' ? '' : scoreClass(score)}">${score}</div>
+        <div class="score-meta">
+          <div><strong>candidato_id:</strong> ${body.analisis.candidato_id} ${body.candidato_creado ? '<span class="pill ok">creado</span>' : '<span class="pill">reusado</span>'}</div>
+          <div><strong>aplicacion_id:</strong> ${body.aplicacion.id} · etapa: <strong>${body.aplicacion.etapa}</strong></div>
+          <div><strong>analisis_id:</strong> ${body.analisis.id} · ${body.analisis.analizado_en}</div>
+          ${body.analisis.sentimiento_compound !== null && body.analisis.sentimiento_compound !== undefined ? `<div><strong>sentimiento:</strong> ${body.analisis.sentimiento_compound}</div>` : ''}
+        </div>
+      </div>
+      ${desglose.length ? `
+        <table class="desglose-table">
+          <thead><tr><th>Categoría</th><th style="text-align:right;">Puntaje</th><th style="text-align:right;">Peso</th><th style="text-align:right;">Contribución</th><th>Comentario</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      ` : ''}
+    `;
+    $('resultActions').style.display = '';
+    markDone(2);
+    markDone(3);
+    refreshPipeline();
+  }
+
+  const ETAPAS = ['nueva','en_revision','shortlist','entrevista','entrevista_tecnica','oferta','rechazada'];
+
+  async function refreshPipeline() {
+    if (!state.vacanteId) return;
+    const [pipe, apps] = await Promise.all([
+      call('GET', `/vacancies/${state.vacanteId}/pipeline`),
+      call('GET', `/vacancies/${state.vacanteId}/aplicaciones`),
+    ]);
+    if (!pipe.ok || !apps.ok) {
+      $('pipelineBox').innerHTML = `<div style="color:#900;">Error cargando pipeline: ${JSON.stringify(pipe.body || apps.body)}</div>`;
+      $('pipelineBox').style.display = '';
+      return;
+    }
+    const counts = pipe.body.counts || {};
+    const total = pipe.body.total || 0;
+    const byEtapa = {};
+    ETAPAS.forEach(e => byEtapa[e] = []);
+    (apps.body || []).forEach(a => {
+      if (!byEtapa[a.etapa]) byEtapa[a.etapa] = [];
+      byEtapa[a.etapa].push(a);
+    });
+
+    const cols = ETAPAS.map(e => {
+      const items = byEtapa[e] || [];
+      const cards = items.map(a => {
+        const sc = a.puntaje_total;
+        const scHtml = sc != null ? `<span class="sc ${scoreClass(sc)}">${sc}</span>` : `<span style="color:#aaa;">—</span>`;
+        const opts = ETAPAS.map(et => `<option value="${et}" ${et === a.etapa ? 'selected' : ''}>${et}</option>`).join('');
+        return `
+          <div class="pipe-card" data-app="${a.aplicacion_id}">
+            <div class="name">${a.candidato_nombre}</div>
+            <div style="font-size:10.5px; color:#777;">${a.candidato_email || ''}</div>
+            <div class="row2">
+              <select data-app-etapa="${a.aplicacion_id}">${opts}</select>
+              ${scHtml}
+            </div>
+          </div>
+        `;
+      }).join('');
+      return `
+        <div class="pipe-col">
+          <h4>${e.replace('_',' ')} <span class="count">${counts[e] || 0}</span></h4>
+          ${cards || '<div style="font-size:10.5px; color:#aaa; font-style:italic;">vacío</div>'}
+        </div>
+      `;
+    }).join('');
+
+    $('pipelineBox').innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px;">
+        <div style="font-weight:600; font-size:12px;">Pipeline · ${total} aplicaciones</div>
+        <div style="font-size:11px; color:#777;">cambia la etapa en el select para moverlo</div>
+      </div>
+      <div class="pipeline-cols">${cols}</div>
+    `;
+    $('pipelineBox').style.display = '';
+
+    // bind selects
+    document.querySelectorAll('select[data-app-etapa]').forEach(sel => {
+      sel.onchange = async () => {
+        const appId = sel.dataset.appEtapa;
+        const etapa = sel.value;
+        sel.disabled = true;
+        const { ok, body } = await call('PATCH', `/aplicaciones/${appId}/etapa`, { json: { etapa } });
+        sel.disabled = false;
+        if (!ok) { alert('Error: ' + JSON.stringify(body)); return; }
+        refreshPipeline();
+      };
+    });
+  }
+
+  $('btnProcesar').onclick = async () => {
+    const fd = buildProcesarForm();
+    if (!fd) return;
+    $('btnProcesar').disabled = true;
+    show('procOut', { _status: 'Procesando… esto puede tardar 20-60s dependiendo del LLM' }, false);
+    const { ok, body, ms } = await call('POST', '/analyses/procesar', { body: fd });
+    setMs('procMs', ms, !ok);
+    $('btnProcesar').disabled = false;
+    if (!ok) { show('procOut', body, true); return; }
+    show('procOut', body, false);
+    renderResultado(body);
+    activateStep(3);
+  };
+
+  $('btnProcesarAsync').onclick = async () => {
+    const fd = buildProcesarForm();
+    if (!fd) return;
+    $('btnProcesarAsync').disabled = true;
+    show('procOut', { _status: 'Encolando…' }, false);
+    const { ok, body, ms } = await call('POST', '/analyses/procesar-async', { body: fd });
+    setMs('procMs', ms, !ok);
+    if (!ok) { show('procOut', body, true); $('btnProcesarAsync').disabled = false; return; }
+    const jobId = body.job_id;
+    show('procOut', { ...body, _info: 'Polling cada 1s…' }, false);
+    let attempts = 0;
+    const tick = async () => {
+      attempts++;
+      const r = await call('GET', `/analyses/job/${jobId}`);
+      show('procOut', { intentos: attempts, ...r.body }, !r.ok);
+      setMs('procMs', r.ms, !r.ok);
+      if (r.ok && r.body.status === 'completado' && r.body.resultado) {
+        $('btnProcesarAsync').disabled = false;
+        renderResultado({
+          aplicacion: { id: r.body.resultado.aplicacion_id, etapa: '—' },
+          analisis: r.body.resultado,
+          candidato_creado: false,
+        });
+        activateStep(3);
+        return;
+      }
+      if (r.ok && r.body.status === 'error') {
+        $('btnProcesarAsync').disabled = false;
+        return;
+      }
+      if (attempts < 120) setTimeout(tick, 1000);
+      else $('btnProcesarAsync').disabled = false;
+    };
+    setTimeout(tick, 1000);
+  };
+
+  $('btnExplicacion').onclick = () => {
+    if (!state.analisisId) return;
+    runAndShow(call('GET', `/analyses/${state.analisisId}/explicacion`), 'extraOut', 'procMs');
+  };
+  $('btnCosto').onclick = () => {
+    if (!state.analisisId) return;
+    runAndShow(call('GET', `/analyses/${state.analisisId}/costo`), 'extraOut', 'procMs');
+  };
+  $('btnRefreshPipe').onclick = refreshPipeline;
+
+  // ════════════════════════════════════════════════════════════════════
+  // SECCIONES MANUALES
+  // ════════════════════════════════════════════════════════════════════
+
+  // ── Vacantes manual ─────────────────────────────────
+  $('btnCreateVac').onclick = () => runAndShow(
+    call('POST', '/vacancies/', { json: {
+      titulo: $('vTitulo').value || 'Sin título',
+      descripcion: $('vDescripcion').value || null,
+      requisitos_texto: $('vRequisitos').value || null,
+    }}), 'vOut', 'vMs');
+  $('btnListVac').onclick = () => runAndShow(call('GET', '/vacancies/'), 'vOut', 'vMs');
+  $('btnVacFromFile').onclick = async () => {
+    const f = $('vFile').files[0];
+    if (!f) return alert('Selecciona un archivo');
+    const fd = new FormData(); fd.append('file', f);
+    runAndShow(call('POST', '/vacancies/extraer-desde-archivo', { body: fd }), 'vOut', 'vMs');
+  };
+  function vid() { const v = $('vId').value; if (!v) { alert('vacante_id'); throw new Error(); } return v; }
+  $('btnGetVac').onclick = () => runAndShow(call('GET', `/vacancies/${vid()}`), 'vDetOut', 'vDetMs');
+  $('btnRanking2').onclick = () => runAndShow(call('GET', `/vacancies/${vid()}/ranking`), 'vDetOut', 'vDetMs');
+  $('btnPipeline').onclick = () => runAndShow(call('GET', `/vacancies/${vid()}/pipeline`), 'vDetOut', 'vDetMs');
+  $('btnAplicaciones').onclick = () => runAndShow(call('GET', `/vacancies/${vid()}/aplicaciones`), 'vDetOut', 'vDetMs');
+  $('btnCostoVac').onclick = () => runAndShow(call('GET', `/vacancies/${vid()}/costo-total`), 'vDetOut', 'vDetMs');
+  $('btnPutReq').onclick = () => runAndShow(call('PUT', `/vacancies/${vid()}/requisitos`, { json: { requisitos_texto: $('vReqText').value } }), 'vDetOut', 'vDetMs');
+  $('btnPutPesos').onclick = () => {
+    let pesos; try { pesos = JSON.parse($('vPesosJson').value); } catch (e) { return alert('JSON inválido'); }
+    runAndShow(call('PUT', `/vacancies/${vid()}/pesos`, { json: pesos }), 'vDetOut', 'vDetMs');
+  };
+  $('btnDelPesos').onclick = () => {
+    if (!confirm('¿Borrar pesos custom?')) return;
+    runAndShow(call('DELETE', `/vacancies/${vid()}/pesos`), 'vDetOut', 'vDetMs');
+  };
+
+  // ── Candidatos manual ───────────────────────────────
+  $('btnCreateCand').onclick = () => runAndShow(
+    call('POST', '/candidates/', { json: {
+      nombre: $('cNombre').value || 'Sin nombre',
+      email: $('cEmail').value || null,
+      telefono: $('cTel').value || null,
+    }}), 'cOut', 'cMs');
+  $('btnListCand').onclick = () => runAndShow(call('GET', '/candidates/'), 'cOut', 'cMs');
+
+  // ── Uploads manual ──────────────────────────────────
+  function upload(inputId, path) {
+    const f = $(inputId).files[0];
+    if (!f) return alert('Selecciona un archivo');
+    const fd = new FormData(); fd.append('file', f);
+    runAndShow(call('POST', path, { body: fd }), 'upOut', 'upMs');
+  }
+  $('btnUpCv').onclick    = () => upload('upCv',    '/upload/cv');
+  $('btnUpAudio').onclick = () => upload('upAudio', '/upload/audio');
+  $('btnUpReq').onclick   = () => upload('upReq',   '/upload/requisitos');
+
+  // ── Análisis manual ─────────────────────────────────
+  function buildAnaForm() {
+    const cv = $('aCv').files[0];
+    if (!cv) { alert('CV requerido'); return null; }
+    const vac = $('aVac').value;
+    if (!vac) { alert('vacante_id requerido'); return null; }
+    const fd = new FormData();
+    fd.append('cv_file', cv);
+    fd.append('vacante_id', vac);
+    const audio = $('aAudio').files[0];
+    if (audio) fd.append('audio_file', audio);
+    const cand = $('aCand').value;
+    if (cand) fd.append('candidato_id', cand);
+    return fd;
+  }
+  $('btnProcSync').onclick = () => {
+    const fd = buildAnaForm(); if (!fd) return;
+    runAndShow(call('POST', '/analyses/procesar', { body: fd }), 'aOut', 'aMs');
+  };
+  $('btnProcAsync').onclick = async () => {
+    const fd = buildAnaForm(); if (!fd) return;
+    const { ok, body, ms } = await call('POST', '/analyses/procesar-async', { body: fd });
+    if (!ok) { show('aOut', body, true); setMs('aMs', ms, true); return; }
+    show('aOut', { ...body, _info: 'Polling…' }, false);
+    setMs('aMs', ms, false);
+    const jobId = body.job_id;
+    let attempts = 0;
+    const tick = async () => {
+      attempts++;
+      const r = await call('GET', `/analyses/job/${jobId}`);
+      show('aOut', { intentos: attempts, ...r.body }, !r.ok);
+      setMs('aMs', r.ms, !r.ok);
+      if (r.ok && (r.body.status === 'completado' || r.body.status === 'error')) return;
+      if (attempts < 120) setTimeout(tick, 1000);
+    };
+    setTimeout(tick, 1000);
+  };
+  $('btnExpl').onclick = () => runAndShow(call('GET', `/analyses/${$('aId').value}/explicacion`), 'aOut', 'aMs');
+  $('btnCostoAna').onclick = () => runAndShow(call('GET', `/analyses/${$('aId').value}/costo`), 'aOut', 'aMs');
+  $('btnListByVac').onclick = () => runAndShow(call('GET', `/analyses/vacante/${$('aVac').value}`), 'aOut', 'aMs');
+
+  // ── Aplicaciones manual ─────────────────────────────
+  function apid() { const v = $('apId').value; if (!v) { alert('aplicacion_id'); throw new Error(); } return v; }
+  $('btnApGet').onclick   = () => runAndShow(call('GET',   `/aplicaciones/${apid()}`), 'apOut', 'apMs');
+  $('btnApEtapa').onclick = () => runAndShow(call('PATCH', `/aplicaciones/${apid()}/etapa`, { json: { etapa: $('apEtapa').value } }), 'apOut', 'apMs');
+  $('btnApNotas').onclick = () => runAndShow(call('PATCH', `/aplicaciones/${apid()}/notas`, { json: { notas: $('apNotas').value } }), 'apOut', 'apMs');
+  $('btnApAudio').onclick = () => {
+    const f = $('apAudio').files[0];
+    if (!f) return alert('audio requerido');
+    const fd = new FormData(); fd.append('audio_file', f);
+    runAndShow(call('POST', `/aplicaciones/${apid()}/audio`, { body: fd }), 'apOut', 'apMs');
+  };
+
+  // ── Ollama manual ───────────────────────────────────
+  $('btnGenerate').onclick = () => runAndShow(call('POST', '/generate', { json: { prompt: $('lPrompt').value } }), 'lOut', 'lMs');
+  $('btnKeypoints').onclick = () => runAndShow(call('POST', '/generate_keypoints', { json: {} }), 'lOut', 'lMs');
+
+  // ── Init ────────────────────────────────────────────
+  ping();
+  loadVacancies();
+})();
+</script>
+
+</body>
+</html>
