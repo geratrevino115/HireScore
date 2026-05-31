@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from db.database import init_db, engine
 from api.endpoints import vacancies, analyses, ollamaAPI, uploads, candidates, aplicaciones
@@ -59,6 +60,11 @@ async def health_check():
         "llm": {"provider": llm_name, "ok": llm_ok},
         "etapas_aplicacion": list(ETAPAS_APLICACION),
     }
+
+
+@app.get("/", include_in_schema=False)
+async def landing():
+    return FileResponse("dashboard/public/landing.html")
 
 
 # Servir el dashboard en /app

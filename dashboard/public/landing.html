@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HireScore — Evaluación de candidatos auditable</title>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --n-bg:        #ffffff;
+      --n-sidebar:   #fbfbfa;
+      --n-ink:       #37352f;
+      --n-ink2:      #787774;
+      --n-ink3:      #9b9a97;
+      --n-ink4:      #c1c0bd;
+      --n-hover:     #f3f3f1;
+      --n-selected:  #e9e9e7;
+      --n-border:    #ebebea;
+      --n-border-hi: #d8d7d4;
+      --n-track:     #ebebea;
+
+      --c-gray-bg:   #f1f1ef; --c-gray-fg:   #5f5e5b;
+      --c-brown-bg:  #f4eeee; --c-brown-fg:  #64473a;
+      --c-orange-bg: #faebdd; --c-orange-fg: #b35f12;
+      --c-yellow-bg: #fbf3db; --c-yellow-fg: #8a6d13;
+      --c-green-bg:  #ddedea; --c-green-fg:  #0f7b6c;
+      --c-cyan-bg:   #e0eef1; --c-cyan-fg:   #0b6e84;
+      --c-blue-bg:   #ddebf1; --c-blue-fg:   #0b6e99;
+      --c-purple-bg: #eae4f2; --c-purple-fg: #6940a5;
+      --c-red-bg:    #fdebec; --c-red-fg:    #b4322f;
+
+      /* Acento de marca (Notion blue) */
+      --accent:      #2383e2;
+      --accent-fg:   #1268b8;
+      --accent-bg:   #e9f3fc;
+      --accent-soft: #f3f9fe;
+
+      --maxw: 1080px;
+      --pad: max(24px, calc((100vw - var(--maxw)) / 2));
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      background: var(--n-bg);
+      color: var(--n-ink);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      overflow-x: hidden;
+      line-height: 1.5;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* ── CHIP (Notion) ── */
+    .chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 1px 8px; border-radius: 4px;
+      font-size: 12px; font-weight: 500; line-height: 18px;
+      white-space: nowrap;
+    }
+    .chip .dot { width: 6px; height: 6px; border-radius: 999px; background: currentColor; }
+    .chip.gray   { background: var(--c-gray-bg);   color: var(--c-gray-fg); }
+    .chip.brown  { background: var(--c-brown-bg);  color: var(--c-brown-fg); }
+    .chip.orange { background: var(--c-orange-bg); color: var(--c-orange-fg); }
+    .chip.yellow { background: var(--c-yellow-bg); color: var(--c-yellow-fg); }
+    .chip.green  { background: var(--c-green-bg);  color: var(--c-green-fg); }
+    .chip.cyan   { background: var(--c-cyan-bg);   color: var(--c-cyan-fg); }
+    .chip.blue   { background: var(--c-blue-bg);   color: var(--c-blue-fg); }
+    .chip.purple { background: var(--c-purple-bg); color: var(--c-purple-fg); }
+    .chip.red    { background: var(--c-red-bg);    color: var(--c-red-fg); }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+      font-family: inherit; font-size: 14px; font-weight: 500;
+      padding: 9px 15px; border-radius: 6px; cursor: pointer;
+      border: 1px solid transparent; transition: background 0.12s, border-color 0.12s;
+      white-space: nowrap;
+    }
+    .btn-primary { background: var(--n-ink); color: var(--n-bg); }
+    .btn-primary:hover { background: #2a2823; }
+    .btn-secondary { background: var(--n-bg); color: var(--n-ink); border-color: var(--n-border); }
+    .btn-secondary:hover { background: var(--n-hover); border-color: var(--n-border-hi); }
+    .btn-ghost { background: transparent; color: var(--n-ink2); }
+    .btn-ghost:hover { background: var(--n-hover); color: var(--n-ink); }
+    .btn-lg { font-size: 15px; padding: 11px 20px; }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: saturate(180%) blur(12px);
+      border-bottom: 1px solid var(--n-border);
+      height: 54px; display: flex; align-items: center;
+      padding: 0 var(--pad);
+    }
+    .nav-inner { width: 100%; display: flex; align-items: center; gap: 8px; }
+    .logo { display: flex; align-items: center; gap: 9px; }
+    .logo-mark {
+      width: 26px; height: 26px; border-radius: 6px;
+      background: var(--n-ink); color: var(--n-bg);
+      font-size: 14px; font-weight: 700;
+      display: grid; place-items: center; flex-shrink: 0;
+    }
+    .logo-name { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; }
+    .nav-links { display: flex; gap: 2px; margin-left: 18px; }
+    .nav-link {
+      padding: 5px 10px; border-radius: 5px;
+      font-size: 14px; color: var(--n-ink2); transition: background 0.12s, color 0.12s;
+    }
+    .nav-link:hover { background: var(--n-hover); color: var(--n-ink); }
+    .nav-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+
+    /* ── LAYOUT ── */
+    .section { padding: 72px var(--pad); }
+    .section-alt { background: var(--n-sidebar); border-top: 1px solid var(--n-border); border-bottom: 1px solid var(--n-border); }
+    .eyebrow {
+      font-size: 12px; font-weight: 600; color: var(--accent-fg);
+      text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px;
+      display: inline-flex; align-items: center; gap: 7px;
+    }
+    .eyebrow::before { content: ""; width: 16px; height: 2px; border-radius: 2px; background: var(--accent); }
+    .section-title {
+      font-size: clamp(24px, 3vw, 32px); font-weight: 700;
+      letter-spacing: -0.02em; line-height: 1.12; color: var(--n-ink);
+      text-wrap: balance;
+    }
+    .section-sub {
+      margin-top: 12px; font-size: 16px; color: var(--n-ink2);
+      max-width: 560px; line-height: 1.6; text-wrap: pretty;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 80px var(--pad) 64px; position: relative; overflow: hidden;
+      background:
+        radial-gradient(60% 70% at 82% 12%, var(--accent-soft) 0%, transparent 60%),
+        radial-gradient(50% 60% at 8% 6%, #faf3fb 0%, transparent 55%);
+      border-bottom: 1px solid var(--n-border);
+    }
+    .hero-grid {
+      display: grid; grid-template-columns: 1.02fr 0.98fr; gap: 56px; align-items: center;
+    }
+    .hero-copy { display: flex; flex-direction: column; align-items: flex-start; }
+    .hero h1 {
+      font-size: clamp(32px, 4vw, 50px); font-weight: 700;
+      letter-spacing: -0.03em; line-height: 1.05; color: var(--n-ink);
+      max-width: 540px; margin-top: 20px; text-wrap: balance; text-align: left;
+    }
+    .hero h1 .grad {
+      background: linear-gradient(105deg, var(--accent) 0%, #6940a5 100%);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero-sub {
+      margin-top: 18px; font-size: 16.5px; color: var(--n-ink2);
+      max-width: 480px; line-height: 1.6; text-wrap: pretty; text-align: left;
+    }
+    .hero-actions { margin-top: 26px; display: flex; gap: 10px; flex-wrap: nowrap; }
+    .hero-trust {
+      margin-top: 26px; display: flex; align-items: center; gap: 9px;
+      font-size: 13px; color: var(--n-ink3);
+    }
+    .avatar-row { display: flex; }
+    .avatar-row .av {
+      width: 24px; height: 24px; border-radius: 50%;
+      border: 2px solid var(--n-bg); margin-left: -7px;
+      display: grid; place-items: center; font-size: 9.5px; font-weight: 600; color: #fff; flex-shrink: 0;
+    }
+    .avatar-row .av:first-child { margin-left: 0; }
+
+    /* ── CALIBRADOR (interactivo) ── */
+    .cal {
+      background: var(--n-bg); border: 1px solid var(--n-border);
+      border-radius: 14px; padding: 22px;
+      box-shadow: 0 1px 2px rgba(15,15,15,0.04), 0 18px 50px rgba(35,131,226,0.10);
+    }
+    .cal-top { display: flex; align-items: center; gap: 14px; margin-bottom: 6px; }
+    .cal-ring { position: relative; width: 78px; height: 78px; flex-shrink: 0; }
+    .cal-ring-val { position: absolute; inset: 0; display: grid; place-items: center; }
+    .cal-num { font-size: 25px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; transition: color 0.3s; }
+    .cal-tier { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; transition: color 0.3s; margin-top: 2px; }
+    .cal-id .cal-name { font-size: 15px; font-weight: 600; }
+    .cal-id .cal-role { font-size: 12.5px; color: var(--n-ink3); margin-top: 1px; }
+    .cal-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 7px; }
+    .cal-hint { font-size: 11.5px; color: var(--n-ink3); display: flex; align-items: center; gap: 6px; margin: 16px 0 12px; padding-top: 14px; border-top: 1px solid var(--n-border); }
+    .cal-hint .kbd { color: var(--accent-fg); font-weight: 600; }
+    .cal-rows { display: flex; flex-direction: column; gap: 13px; }
+    .cal-row-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
+    .cal-rl { font-size: 13px; color: var(--n-ink); font-weight: 500; display: flex; align-items: center; gap: 7px; }
+    .cal-dot { width: 8px; height: 8px; border-radius: 2px; }
+    .cal-rv { font-size: 12px; color: var(--n-ink3); font-variant-numeric: tabular-nums; }
+    .cal-rv b { color: var(--n-ink); font-weight: 600; }
+    .cal-slider {
+      -webkit-appearance: none; appearance: none; width: 100%; height: 6px;
+      border-radius: 3px; background: var(--n-track); outline: none; cursor: grab;
+      background-image: linear-gradient(var(--c), var(--c)); background-repeat: no-repeat;
+    }
+    .cal-slider:active { cursor: grabbing; }
+    .cal-slider::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none; width: 16px; height: 16px; border-radius: 50%;
+      background: #fff; border: 2px solid var(--c); cursor: grab;
+      box-shadow: 0 1px 3px rgba(15,15,15,0.18); transition: transform 0.1s;
+    }
+    .cal-slider::-webkit-slider-thumb:active { transform: scale(1.18); cursor: grabbing; }
+    .cal-slider::-moz-range-thumb {
+      width: 16px; height: 16px; border-radius: 50%; background: #fff; border: 2px solid var(--c);
+      cursor: grab; box-shadow: 0 1px 3px rgba(15,15,15,0.18);
+    }
+    .cal-reset {
+      margin-top: 14px; display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; color: var(--n-ink3); background: none; border: none; cursor: pointer; padding: 0;
+      font-family: inherit;
+    }
+    .cal-reset:hover { color: var(--n-ink); }
+
+    /* ── PRODUCT PREVIEW ── */
+    .preview-wrap { padding: 56px var(--pad) 0; }
+    .window {
+      border: 1px solid var(--n-border-hi); border-radius: 12px; overflow: hidden;
+      background: var(--n-bg); box-shadow: 0 1px 2px rgba(15,15,15,0.04), 0 12px 40px rgba(15,15,15,0.06);
+    }
+    .win-bar {
+      height: 38px; background: var(--n-sidebar); border-bottom: 1px solid var(--n-border);
+      display: flex; align-items: center; padding: 0 14px; gap: 7px;
+    }
+    .win-dot { width: 11px; height: 11px; border-radius: 50%; background: var(--n-border-hi); }
+    .win-url {
+      flex: 1; max-width: 320px; margin: 0 auto; height: 22px;
+      background: var(--n-hover); border-radius: 5px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; color: var(--n-ink3);
+    }
+    .app { display: flex; height: 480px; }
+    .app-sb {
+      width: 220px; flex-shrink: 0; background: var(--n-sidebar);
+      border-right: 1px solid var(--n-border); padding: 12px 8px; display: flex; flex-direction: column; gap: 1px;
+    }
+    .sb-head { display: flex; align-items: center; gap: 8px; padding: 4px 6px 12px; }
+    .sb-item {
+      display: flex; align-items: center; gap: 8px;
+      padding: 4px 8px; border-radius: 5px; font-size: 13.5px; color: var(--n-ink2); min-height: 28px;
+    }
+    .sb-item.active { background: var(--n-selected); color: var(--n-ink); font-weight: 500; }
+    .sb-item .ico { color: var(--n-ink3); display: grid; place-items: center; }
+    .sb-item .count { margin-left: auto; font-size: 11.5px; color: var(--n-ink3); }
+    .sb-label { font-size: 11px; color: var(--n-ink3); font-weight: 500; padding: 14px 8px 6px; text-transform: none; }
+    .sb-mono {
+      width: 20px; height: 20px; border-radius: 4px; background: var(--n-hover);
+      color: var(--n-ink2); font-size: 9.5px; font-weight: 600; display: grid; place-items: center; flex-shrink: 0;
+    }
+    .app-main { flex: 1; padding: 22px 24px; overflow: hidden; display: flex; flex-direction: column; gap: 16px; }
+    .app-h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
+    .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--n-border); border-radius: 8px; overflow: hidden; }
+    .kpi { padding: 11px 14px; border-right: 1px solid var(--n-border); display: flex; flex-direction: column; gap: 4px; }
+    .kpi:last-child { border-right: none; }
+    .kpi-label { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; color: var(--n-ink3); }
+    .kpi-val { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; }
+    .tbl { border: 1px solid var(--n-border); border-radius: 8px; overflow: hidden; }
+    .tbl-head, .tbl-row {
+      display: grid; grid-template-columns: 1.5fr 1.1fr 1fr; align-items: center;
+      gap: 14px; padding: 9px 16px;
+    }
+    .tbl-head { background: var(--n-sidebar); border-bottom: 1px solid var(--n-border); font-size: 11.5px; color: var(--n-ink2); font-weight: 500; }
+    .tbl-row { border-top: 1px solid var(--n-border); }
+    .tbl-row:first-child { border-top: none; }
+    .cand { display: flex; align-items: center; gap: 9px; min-width: 0; }
+    .cand-name { font-size: 13.5px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .score-cell { display: flex; align-items: center; gap: 9px; }
+    .score-track { flex: 1; height: 6px; border-radius: 3px; background: var(--n-track); overflow: hidden; }
+    .score-fill { height: 100%; border-radius: 3px; }
+    .score-num { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; min-width: 20px; text-align: right; }
+    .nav-avatar, .av-mono {
+      width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0;
+      display: grid; place-items: center; font-size: 10px; font-weight: 600; color: #fff;
+    }
+
+    /* ── STEPS ── */
+    .steps { margin-top: 40px; display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--n-border); border-radius: 8px; overflow: hidden; background: var(--n-bg); }
+    .step { padding: 24px 22px; border-right: 1px solid var(--n-border); }
+    .step:last-child { border-right: none; }
+    .step-num {
+      width: 28px; height: 28px; border-radius: 7px; background: var(--accent-bg); color: var(--accent-fg);
+      font-size: 13px; font-weight: 700; display: grid; place-items: center; margin-bottom: 16px; font-variant-numeric: tabular-nums;
+    }
+    .step-title { font-size: 14.5px; font-weight: 600; margin-bottom: 6px; }
+    .step-desc { font-size: 13px; color: var(--n-ink2); line-height: 1.55; }
+
+    /* ── FEATURE GRID ── */
+    .grid-3 { margin-top: 40px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .grid-2 { margin-top: 40px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    .card {
+      border: 1px solid var(--n-border); border-radius: 8px; background: var(--n-bg);
+      padding: 22px; transition: border-color 0.14s;
+    }
+    .card:hover { border-color: var(--n-border-hi); }
+    .card-ico {
+      width: 38px; height: 38px; border-radius: 9px; margin-bottom: 14px;
+      display: inline-flex; align-items: center; justify-content: center;
+      background: var(--tile-bg, var(--n-hover)); color: var(--tile-fg, var(--n-ink3));
+    }
+    .rico { display: inline-flex; }
+    /* tile hues — features */
+    .grid-3 .card:nth-child(1) .card-ico { --tile-bg: var(--c-blue-bg);   --tile-fg: var(--c-blue-fg); }
+    .grid-3 .card:nth-child(2) .card-ico { --tile-bg: var(--c-purple-bg); --tile-fg: var(--c-purple-fg); }
+    .grid-3 .card:nth-child(3) .card-ico { --tile-bg: var(--c-green-bg);  --tile-fg: var(--c-green-fg); }
+    .grid-3 .card:nth-child(4) .card-ico { --tile-bg: var(--c-orange-bg); --tile-fg: var(--c-orange-fg); }
+    .grid-3 .card:nth-child(5) .card-ico { --tile-bg: var(--c-cyan-bg);   --tile-fg: var(--c-cyan-fg); }
+    .grid-3 .card:nth-child(6) .card-ico { --tile-bg: var(--c-gray-bg);   --tile-fg: var(--c-gray-fg); }
+    /* tile hues — diferenciadores */
+    .grid-2 .card:nth-child(1) .card-ico { --tile-bg: var(--c-blue-bg);   --tile-fg: var(--c-blue-fg); }
+    .grid-2 .card:nth-child(2) .card-ico { --tile-bg: var(--c-purple-bg); --tile-fg: var(--c-purple-fg); }
+    .grid-2 .card:nth-child(3) .card-ico { --tile-bg: var(--c-green-bg);  --tile-fg: var(--c-green-fg); }
+    .grid-2 .card:nth-child(4) .card-ico { --tile-bg: var(--c-orange-bg); --tile-fg: var(--c-orange-fg); }
+    .card-title { font-size: 14.5px; font-weight: 600; margin-bottom: 7px; }
+    .card-desc { font-size: 13px; color: var(--n-ink2); line-height: 1.6; }
+    .card-row { display: flex; gap: 16px; align-items: flex-start; }
+
+    /* ── SCORING SPLIT ── */
+    .split { margin-top: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; }
+    .checklist { margin-top: 22px; list-style: none; display: flex; flex-direction: column; gap: 11px; }
+    .checklist li { display: flex; gap: 9px; align-items: flex-start; font-size: 14px; color: var(--n-ink); line-height: 1.5; }
+    .check {
+      width: 17px; height: 17px; border-radius: 50%; flex-shrink: 0; margin-top: 1px;
+      background: var(--c-green-bg); display: grid; place-items: center;
+    }
+    .score-card { border: 1px solid var(--n-border); border-radius: 10px; background: var(--n-bg); padding: 22px; }
+    .sc-head { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+    .sc-ring { position: relative; width: 64px; height: 64px; flex-shrink: 0; }
+    .sc-ring-val { position: absolute; inset: 0; display: grid; place-items: center; flex-direction: column; }
+    .dim-row { display: grid; grid-template-columns: 130px 1fr 36px; align-items: center; gap: 12px; padding: 5px 0; }
+    .dim-label { font-size: 12.5px; color: var(--n-ink2); }
+    .dim-track { height: 6px; border-radius: 3px; background: var(--n-track); overflow: hidden; }
+    .dim-fill { height: 100%; border-radius: 3px; transition: width 1s cubic-bezier(0.32,0.72,0.3,1); }
+    .dim-pct { font-size: 12px; font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
+
+    /* ── PRICING ── */
+    .tiers { margin-top: 40px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; align-items: stretch; }
+    .tier { border: 1px solid var(--n-border); border-radius: 10px; background: var(--n-bg); padding: 26px 24px; display: flex; flex-direction: column; }
+    .tier.featured { background: var(--n-ink); border-color: var(--n-ink); color: var(--n-bg); }
+    .tier-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+    .tier-name { font-size: 13px; font-weight: 600; }
+    .tier-price { font-size: 34px; font-weight: 700; letter-spacing: -0.02em; margin: 10px 0 2px; }
+    .tier-price span { font-size: 14px; font-weight: 400; letter-spacing: 0; opacity: 0.7; }
+    .tier-desc { font-size: 13px; line-height: 1.55; opacity: 0.7; margin-bottom: 18px; min-height: 42px; }
+    .tier-feats { list-style: none; display: flex; flex-direction: column; gap: 9px; flex: 1; margin-bottom: 22px; }
+    .tier-feats li { font-size: 13px; display: flex; gap: 8px; align-items: flex-start; line-height: 1.4; }
+    .tier-feats .tk { flex-shrink: 0; margin-top: 1px; opacity: 0.85; }
+
+    /* ── CTA ── */
+    .cta-card {
+      border: 1px solid var(--accent-bg); border-radius: 12px;
+      background:
+        radial-gradient(70% 120% at 50% 0%, var(--accent-bg) 0%, transparent 70%),
+        var(--n-sidebar);
+      padding: 56px 40px; text-align: center;
+    }
+    .cta-title { font-size: clamp(24px, 3vw, 34px); font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; text-wrap: balance; }
+    .cta-sub { margin-top: 12px; font-size: 16px; color: var(--n-ink2); max-width: 460px; margin-inline: auto; line-height: 1.6; }
+    .cta-actions { margin-top: 26px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+    /* ── FOOTER ── */
+    footer { border-top: 1px solid var(--n-border); padding: 32px var(--pad); display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .footer-tag { font-size: 12.5px; color: var(--n-ink3); }
+    .footer-links { margin-left: auto; display: flex; gap: 18px; flex-wrap: wrap; }
+    .footer-links a { font-size: 12.5px; color: var(--n-ink3); }
+    .footer-links a:hover { color: var(--n-ink2); }
+
+    /* ── ANIM ── */
+    .anim { opacity: 0; transform: translateY(14px); transition: opacity 0.55s cubic-bezier(0.32,0.72,0.3,1), transform 0.55s cubic-bezier(0.32,0.72,0.3,1); transition-delay: var(--d, 0s); }
+    .anim.in { opacity: 1; transform: none; }
+
+    @media (max-width: 880px) {
+      .nav-links { display: none; }
+      .hero-grid { grid-template-columns: 1fr; gap: 36px; }
+      .split { grid-template-columns: 1fr; gap: 32px; }
+      .grid-3, .tiers { grid-template-columns: 1fr; }
+      .grid-2 { grid-template-columns: 1fr; }
+      .steps { grid-template-columns: 1fr; }
+      .step { border-right: none; border-bottom: 1px solid var(--n-border); }
+      .step:last-child { border-bottom: none; }
+      .app-sb { display: none; }
+      .app { height: auto; }
+      .kpi-row { grid-template-columns: 1fr 1fr; }
+      .kpi:nth-child(2) { border-right: none; }
+      .kpi:nth-child(1), .kpi:nth-child(2) { border-bottom: 1px solid var(--n-border); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="logo">
+      <div class="logo-mark">H</div>
+      <span class="logo-name">HireScore</span>
+    </a>
+    <div class="nav-links">
+      <a href="#como" class="nav-link">Cómo funciona</a>
+      <a href="#scoring" class="nav-link">Scoring</a>
+      <a href="#caracteristicas" class="nav-link">Características</a>
+      <a href="#precios" class="nav-link">Precios</a>
+    </div>
+    <div class="nav-right">
+      <a href="/app/" class="btn btn-ghost">Entrar</a>
+      <a href="#precios" class="btn btn-primary">Solicitar demo</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid">
+    <div class="hero-copy">
+      <span class="chip blue anim in"><span class="dot"></span>Scoring determinístico · No caja negra</span>
+      <h1 class="anim in">Evalúa candidatos con <span class="grad">precisión auditable</span></h1>
+      <p class="hero-sub anim in">
+        HireScore analiza CVs y entrevistas con IA y genera un puntaje 0–100 con desglose por dimensión.
+        Reproducible, explicable y calibrable a tu industria.
+      </p>
+      <div class="hero-actions anim in">
+        <a href="/app/" class="btn btn-primary btn-lg">Abrir la app</a>
+        <a href="#como" class="btn btn-secondary btn-lg">Ver cómo funciona</a>
+      </div>
+      <div class="hero-trust anim in">
+        <div class="avatar-row">
+          <span class="av" style="background:#c98f8f">AR</span>
+          <span class="av" style="background:#a9b87f">MG</span>
+          <span class="av" style="background:#7fa9b8">LP</span>
+          <span class="av" style="background:#9a8bc4">CR</span>
+        </div>
+        Más de 40 equipos de reclutamiento ya evalúan con HireScore
+      </div>
+    </div>
+
+    <!-- Calibrador interactivo -->
+    <div class="cal anim in" id="cal">
+      <div class="cal-top">
+        <div class="cal-ring">
+          <svg width="78" height="78" style="transform:rotate(-90deg);display:block;">
+            <circle cx="39" cy="39" r="32" fill="none" stroke="var(--n-track)" stroke-width="6"/>
+            <circle cx="39" cy="39" r="32" fill="none" stroke="var(--accent)" stroke-width="6"
+              stroke-linecap="round" id="cal-arc" stroke-dasharray="201" stroke-dashoffset="201"
+              style="transition:stroke-dashoffset 0.5s cubic-bezier(0.32,0.72,0.3,1), stroke 0.3s;"/>
+          </svg>
+          <div class="cal-ring-val">
+            <div style="text-align:center;">
+              <div class="cal-num" id="cal-num">85</div>
+              <div class="cal-tier" id="cal-tier">Fuerte</div>
+            </div>
+          </div>
+        </div>
+        <div class="cal-id">
+          <div class="cal-name">Mariana Solís</div>
+          <div class="cal-role">Senior Backend Engineer · 8 años</div>
+          <div class="cal-tags">
+            <span class="chip blue">Python</span>
+            <span class="chip green">FastAPI</span>
+            <span class="chip purple">PostgreSQL</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="cal-hint">
+        <span class="kbd">Arrastra los pesos</span> y mira el score recalcularse en vivo.
+      </div>
+
+      <div class="cal-rows" id="cal-rows">
+        <!-- rows injected -->
+      </div>
+
+      <button class="cal-reset" id="cal-reset"><span class="rico">__IC_rotate__</span> Restablecer pesos</button>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCT PREVIEW -->
+<div class="preview-wrap anim">
+  <div class="window">
+    <div class="win-bar">
+      <span class="win-dot"></span><span class="win-dot"></span><span class="win-dot"></span>
+      <span class="win-url">app.hirescore.io/vacantes/backend-senior</span>
+    </div>
+    <div class="app">
+      <!-- sidebar -->
+      <aside class="app-sb">
+        <div class="sb-head">
+          <div class="logo-mark" style="width:24px;height:24px;font-size:13px;">H</div>
+          <span style="font-size:14px;font-weight:600;">HireScore</span>
+        </div>
+        <div class="sb-item"><span class="ico">__IC_search__</span>Buscar</div>
+        <div class="sb-item"><span class="ico">__IC_bar__</span>Resumen</div>
+        <div class="sb-item"><span class="ico">__IC_users__</span>Candidatos<span class="count">1.2k</span></div>
+        <div class="sb-label">Vacantes activas</div>
+        <div class="sb-item active"><span class="sb-mono">BE</span>Backend Senior<span class="count">124</span></div>
+        <div class="sb-item"><span class="sb-mono">ML</span>ML Engineer<span class="count">48</span></div>
+        <div class="sb-item"><span class="sb-mono">PD</span>Sr. Product Designer<span class="count">82</span></div>
+        <div class="sb-item"><span class="sb-mono">DA</span>Data Analyst<span class="count">31</span></div>
+      </aside>
+      <!-- main -->
+      <main class="app-main">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="app-h1">Pipeline</span>
+          <span style="color:var(--n-ink3);font-size:13px;">· 10 candidatos</span>
+        </div>
+        <div class="kpi-row">
+          <div class="kpi"><span class="kpi-label">Aplicantes</span><span class="kpi-val">124</span></div>
+          <div class="kpi"><span class="kpi-label">Puntaje medio</span><span class="kpi-val">72</span></div>
+          <div class="kpi"><span class="kpi-label">En proceso</span><span class="kpi-val">31</span></div>
+          <div class="kpi"><span class="kpi-label">Costo LLM</span><span class="kpi-val" style="font-size:18px;">$2.84</span></div>
+        </div>
+        <div class="tbl">
+          <div class="tbl-head"><span>Candidato</span><span>Puntaje</span><span>Etapa</span></div>
+          <div class="tbl-row">
+            <div class="cand"><span class="av-mono" style="background:#c98f8f">MS</span><span class="cand-name">Mariana Solís</span></div>
+            <div class="score-cell"><div class="score-track"><div class="score-fill" style="width:92%;background:var(--c-green-fg)"></div></div><span class="score-num">92</span></div>
+            <div><span class="chip green"><span class="dot"></span>Oferta</span></div>
+          </div>
+          <div class="tbl-row">
+            <div class="cand"><span class="av-mono" style="background:#7fa9b8">DH</span><span class="cand-name">Diego Herrera</span></div>
+            <div class="score-cell"><div class="score-track"><div class="score-fill" style="width:88%;background:var(--c-green-fg)"></div></div><span class="score-num">88</span></div>
+            <div><span class="chip cyan"><span class="dot"></span>Ent. técnica</span></div>
+          </div>
+          <div class="tbl-row">
+            <div class="cand"><span class="av-mono" style="background:#9a8bc4">VN</span><span class="cand-name">Valeria Núñez</span></div>
+            <div class="score-cell"><div class="score-track"><div class="score-fill" style="width:84%;background:var(--c-green-fg)"></div></div><span class="score-num">84</span></div>
+            <div><span class="chip orange"><span class="dot"></span>Entrevista</span></div>
+          </div>
+          <div class="tbl-row">
+            <div class="cand"><span class="av-mono" style="background:#c9aa7d">AL</span><span class="cand-name">Andrés Lozano</span></div>
+            <div class="score-cell"><div class="score-track"><div class="score-fill" style="width:79%;background:var(--c-blue-fg)"></div></div><span class="score-num">79</span></div>
+            <div><span class="chip purple"><span class="dot"></span>Shortlist</span></div>
+          </div>
+          <div class="tbl-row">
+            <div class="cand"><span class="av-mono" style="background:#c48ba9">RM</span><span class="cand-name">Ricardo Mena</span></div>
+            <div class="score-cell"><div class="score-track"><div class="score-fill" style="width:71%;background:var(--c-blue-fg)"></div></div><span class="score-num">71</span></div>
+            <div><span class="chip yellow"><span class="dot"></span>En revisión</span></div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+
+<!-- CÓMO FUNCIONA -->
+<section class="section" id="como">
+  <div class="eyebrow anim">Flujo de trabajo</div>
+  <h2 class="section-title anim" style="animation-delay:0.05s">Del CV a la decisión, en segundos</h2>
+  <p class="section-sub anim" style="animation-delay:0.1s">Cuatro pasos, sin hojas de cálculo ni criterios improvisados.</p>
+  <div class="steps">
+    <div class="step anim" style="animation-delay:0.05s">
+      <div class="step-num">1</div>
+      <div class="step-title">Crea la vacante</div>
+      <div class="step-desc">Define el puesto y sus requisitos. Ajusta el peso de cada dimensión según tu industria.</div>
+    </div>
+    <div class="step anim" style="animation-delay:0.1s">
+      <div class="step-num">2</div>
+      <div class="step-title">Sube el CV</div>
+      <div class="step-desc">PDF o Word. Opcionalmente adjunta el audio de la entrevista para evaluar soft skills.</div>
+    </div>
+    <div class="step anim" style="animation-delay:0.15s">
+      <div class="step-num">3</div>
+      <div class="step-title">La IA extrae y puntúa</div>
+      <div class="step-desc">El LLM extrae datos estructurados; el scoring determinístico calcula un puntaje reproducible.</div>
+    </div>
+    <div class="step anim" style="animation-delay:0.2s">
+      <div class="step-num">4</div>
+      <div class="step-title">Decide con confianza</div>
+      <div class="step-desc">Revisa el desglose, compara candidatos y exporta el reporte con justificación auditada.</div>
+    </div>
+  </div>
+</section>
+
+<!-- SCORING -->
+<section class="section section-alt" id="scoring">
+  <div class="split">
+    <div>
+      <div class="eyebrow anim">Scoring transparente</div>
+      <h2 class="section-title anim" style="animation-delay:0.05s">El puntaje que puedes explicar ante RH y legal</h2>
+      <p class="section-sub anim" style="animation-delay:0.1s">
+        A diferencia de la IA opaca, HireScore desglosa cada punto en dimensiones configurables.
+        Sabes exactamente por qué un candidato obtuvo 78 y no 79.
+      </p>
+      <ul class="checklist anim" style="animation-delay:0.15s">
+        <li><span class="check">__IC_check__</span>El mismo CV siempre produce el mismo score</li>
+        <li><span class="check">__IC_check__</span>Pesos ajustables por vacante vía dashboard o API</li>
+        <li><span class="check">__IC_check__</span>Evidencias textuales de soft skills desde la entrevista</li>
+        <li><span class="check">__IC_check__</span>Log de auditoría por cada scoring emitido</li>
+      </ul>
+    </div>
+    <div class="score-card anim" style="animation-delay:0.1s">
+      <div class="sc-head">
+        <div class="sc-ring" id="ring">
+          <svg width="64" height="64" style="transform:rotate(-90deg);display:block;">
+            <circle cx="32" cy="32" r="26" fill="none" stroke="var(--c-green-bg)" stroke-width="5"/>
+            <circle cx="32" cy="32" r="26" fill="none" stroke="var(--c-green-fg)" stroke-width="5"
+              stroke-linecap="round" id="ring-fg"
+              stroke-dasharray="163.4" stroke-dashoffset="163.4"
+              style="transition:stroke-dashoffset 1.3s cubic-bezier(0.32,0.72,0.3,1);"/>
+          </svg>
+          <div class="sc-ring-val">
+            <span id="ring-num" style="font-size:18px;font-weight:700;color:var(--c-green-fg);line-height:1;">0</span>
+            <span style="font-size:9px;color:var(--n-ink3);">score</span>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:15px;font-weight:600;">Mariana Solís</div>
+          <div style="font-size:12.5px;color:var(--n-ink3);margin-top:2px;">Senior Backend Engineer · 8 años</div>
+          <div style="margin-top:8px;display:flex;gap:5px;flex-wrap:wrap;">
+            <span class="chip blue">Python</span>
+            <span class="chip green">FastAPI</span>
+            <span class="chip purple">PostgreSQL</span>
+          </div>
+        </div>
+      </div>
+      <div class="dim-row">
+        <span class="dim-label">Skills técnicos</span>
+        <div class="dim-track"><div class="dim-fill" data-val="92" style="width:0;background:var(--c-blue-fg);"></div></div>
+        <span class="dim-pct" style="color:var(--c-blue-fg);">92</span>
+      </div>
+      <div class="dim-row">
+        <span class="dim-label">Experiencia</span>
+        <div class="dim-track"><div class="dim-fill" data-val="88" style="width:0;background:var(--c-purple-fg);"></div></div>
+        <span class="dim-pct" style="color:var(--c-purple-fg);">88</span>
+      </div>
+      <div class="dim-row">
+        <span class="dim-label">Seniority</span>
+        <div class="dim-track"><div class="dim-fill" data-val="80" style="width:0;background:var(--c-green-fg);"></div></div>
+        <span class="dim-pct" style="color:var(--c-green-fg);">80</span>
+      </div>
+      <div class="dim-row">
+        <span class="dim-label">Sentimiento</span>
+        <div class="dim-track"><div class="dim-fill" data-val="76" style="width:0;background:var(--c-orange-fg);"></div></div>
+        <span class="dim-pct" style="color:var(--c-orange-fg);">76</span>
+      </div>
+      <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--n-border);font-size:11.5px;color:var(--n-ink3);font-style:italic;">
+        "Este puntaje es asistencia, no decisión final."
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CARACTERÍSTICAS -->
+<section class="section" id="caracteristicas">
+  <div class="eyebrow anim">Características</div>
+  <h2 class="section-title anim" style="animation-delay:0.05s">Todo lo que necesita tu equipo de RH</h2>
+  <div class="grid-3">
+    <div class="card anim" style="animation-delay:0.05s">
+      <div class="card-ico">__IC_zap__</div>
+      <div class="card-title">Análisis en segundos</div>
+      <div class="card-desc">Sube el CV y el audio de la entrevista. El pipeline extrae, estructura y puntúa en menos de 30 segundos.</div>
+    </div>
+    <div class="card anim" style="animation-delay:0.08s">
+      <div class="card-ico">__IC_layers__</div>
+      <div class="card-title">Multi-LLM por diseño</div>
+      <div class="card-desc">Claude, OpenAI o modelos locales vía Ollama. El cliente elige dónde viven sus datos, sin lock-in.</div>
+    </div>
+    <div class="card anim" style="animation-delay:0.11s">
+      <div class="card-ico">__IC_scale__</div>
+      <div class="card-title">Comparativa de candidatos</div>
+      <div class="card-desc">Vista lado a lado con ranking automático. Filtra, ordena y comparte el shortlist con el hiring manager.</div>
+    </div>
+    <div class="card anim" style="animation-delay:0.14s">
+      <div class="card-ico">__IC_cog__</div>
+      <div class="card-title">Pesos configurables</div>
+      <div class="card-desc">Experiencia, skills, seniority, educación y sentimiento. Ajusta los pesos por vacante para reflejar tus prioridades.</div>
+    </div>
+    <div class="card anim" style="animation-delay:0.17s">
+      <div class="card-ico">__IC_mic__</div>
+      <div class="card-title">Transcripción de entrevistas</div>
+      <div class="card-desc">Sube el audio y el sistema transcribe y detecta evidencias de liderazgo, comunicación y resolución de conflictos.</div>
+    </div>
+    <div class="card anim" style="animation-delay:0.2s">
+      <div class="card-ico">__IC_dollar__</div>
+      <div class="card-title">Tracking de costos IA</div>
+      <div class="card-desc">Cada análisis registra el costo exacto en tokens. Ve cuánto gastaste por vacante o candidato en tiempo real.</div>
+    </div>
+  </div>
+</section>
+
+<!-- DIFERENCIADORES -->
+<section class="section section-alt">
+  <div class="eyebrow anim">Por qué HireScore</div>
+  <h2 class="section-title anim" style="animation-delay:0.05s">Diseñado para resistir el escrutinio</h2>
+  <p class="section-sub anim" style="animation-delay:0.1s">Cuatro diferenciadores que importan cuando la decisión de contratación es auditada.</p>
+  <div class="grid-2">
+    <div class="card card-row anim" style="animation-delay:0.05s">
+      <div class="card-ico" style="margin-bottom:0;">__IC_search__</div>
+      <div>
+        <div class="card-title">Auditable por diseño</div>
+        <div class="card-desc">El LLM extrae datos; el scoring es Python puro. Puedes leer, reproducir y cuestionar cada punto del puntaje. Sin cajas negras.</div>
+      </div>
+    </div>
+    <div class="card card-row anim" style="animation-delay:0.08s">
+      <div class="card-ico" style="margin-bottom:0;">__IC_layers__</div>
+      <div>
+        <div class="card-title">Multi-LLM real</div>
+        <div class="card-desc">Anthropic, OpenAI, Azure u Ollama local. Para clientes regulados, el modelo nunca sale de su VPC. Cambias de proveedor sin tocar código.</div>
+      </div>
+    </div>
+    <div class="card card-row anim" style="animation-delay:0.11s">
+      <div class="card-ico" style="margin-bottom:0;">__IC_lock__</div>
+      <div>
+        <div class="card-title">Compliance-ready</div>
+        <div class="card-desc">Arquitectura mapeada a AI Act, NYC AEDT y LFPDPPP desde el día uno. Disclaimer legal automático en cada análisis.</div>
+      </div>
+    </div>
+    <div class="card card-row anim" style="animation-delay:0.14s">
+      <div class="card-ico" style="margin-bottom:0;">__IC_trend__</div>
+      <div>
+        <div class="card-title">Calibrable a tu industria</div>
+        <div class="card-desc">Usa tu propio gold set para calibrar pesos con Spearman ≥ 0.7. El sistema aprende de las evaluaciones de tus expertos.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRECIOS -->
+<section class="section" id="precios">
+  <div class="eyebrow anim">Precios</div>
+  <h2 class="section-title anim" style="animation-delay:0.05s">Un plan para cada equipo</h2>
+  <p class="section-sub anim" style="animation-delay:0.1s">Sin costos ocultos. Pagas por análisis, no por asiento.</p>
+  <div class="tiers">
+    <div class="tier anim" style="animation-delay:0.05s">
+      <div class="tier-top"><span class="tier-name" style="color:var(--n-ink3);">Starter</span></div>
+      <div class="tier-price">$49<span>/mes</span></div>
+      <div class="tier-desc">Para PYMEs y agencias de reclutamiento que arrancan.</div>
+      <ul class="tier-feats">
+        <li><span class="tk" style="color:var(--c-green-fg);">__IC_check__</span>100 análisis / mes</li>
+        <li><span class="tk" style="color:var(--c-green-fg);">__IC_check__</span>Claude Haiku (bajo costo)</li>
+        <li><span class="tk" style="color:var(--c-green-fg);">__IC_check__</span>Dashboard completo</li>
+        <li><span class="tk" style="color:var(--c-green-fg);">__IC_check__</span>Explicabilidad por análisis</li>
+      </ul>
+      <a href="#" class="btn btn-secondary" style="width:100%;">Empezar gratis</a>
+    </div>
+    <div class="tier featured anim" style="animation-delay:0.1s">
+      <div class="tier-top">
+        <span class="tier-name">Pro</span>
+        <span class="chip gray" style="background:rgba(255,255,255,0.16);color:#fff;">Popular</span>
+      </div>
+      <div class="tier-price">$199<span style="color:rgba(255,255,255,0.6);">/mes</span></div>
+      <div class="tier-desc" style="color:rgba(255,255,255,0.65);">Para empresas medianas con procesos de selección continuos.</div>
+      <ul class="tier-feats">
+        <li><span class="tk">__IC_check_w__</span>500 análisis / mes</li>
+        <li><span class="tk">__IC_check_w__</span>Claude Sonnet (mayor precisión)</li>
+        <li><span class="tk">__IC_check_w__</span>API REST completa</li>
+        <li><span class="tk">__IC_check_w__</span>Transcripción de entrevistas</li>
+        <li><span class="tk">__IC_check_w__</span>Pesos configurables por vacante</li>
+      </ul>
+      <a href="#" class="btn" style="width:100%;background:#fff;color:var(--n-ink);">Solicitar demo</a>
+    </div>
+    <div class="tier anim" style="animation-delay:0.15s">
+      <div class="tier-top">
+        <span class="tier-name" style="color:var(--n-ink3);">Enterprise</span>
+        <span class="chip purple">On-prem</span>
+      </div>
+      <div class="tier-price">$2K+<span>/mes</span></div>
+      <div class="tier-desc">Banca, salud y gobierno. Sus datos nunca salen de su infraestructura.</div>
+      <ul class="tier-feats">
+        <li><span class="tk" style="color:var(--c-green-fg);">__IC_check__</span>Análisis ilimitados</li>
+        <li><span class="tk" style="color:var(--c-green-fg);">__IC_check__</span>Despliegue on-premise / VPC</li>
+        <li><span class="tk" style="color:var(--c-green-fg);">__IC_check__</span>Ollama y modelos locales</li>
+        <li><span class="tk" style="color:var(--c-green-fg);">__IC_check__</span>SSO, auditoría y SLA dedicado</li>
+      </ul>
+      <a href="#" class="btn btn-secondary" style="width:100%;">Contactar ventas</a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="section">
+  <div class="cta-card anim">
+    <div class="cta-title">Empieza a evaluar con puntajes que puedes defender</div>
+    <div class="cta-sub">Crea tu primera vacante y obtén tu primer análisis auditable en minutos.</div>
+    <div class="cta-actions">
+      <a href="/app/" class="btn btn-primary btn-lg">Abrir la app</a>
+      <a href="#precios" class="btn btn-secondary btn-lg">Solicitar demo</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a href="#" class="logo">
+    <div class="logo-mark" style="width:22px;height:22px;font-size:12px;">H</div>
+    <span class="logo-name" style="font-size:14px;">HireScore</span>
+  </a>
+  <span class="footer-tag">Evaluación de candidatos auditable</span>
+  <div class="footer-links">
+    <a href="#como">Cómo funciona</a>
+    <a href="#scoring">Scoring</a>
+    <a href="#precios">Precios</a>
+    <a href="/app/">Entrar a la app</a>
+  </div>
+</footer>
+
+<script>
+  // Inline Notion-style line icons (1.6 stroke, ink3)
+  const ICONS = {
+    search: "M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM21 21l-4.35-4.35",
+    bar: "M3 3v18h18M7 14l4-4 4 4 5-5",
+    users: "M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75",
+    zap: "M13 2L3 14h9l-1 8 10-12h-9z",
+    layers: "M12 2L2 7l10 5 10-5zM2 17l10 5 10-5M2 12l10 5 10-5",
+    scale: "M12 3v18M3 7h18M7 7l-3 7h6zM17 7l-3 7h6z",
+    cog: "M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z",
+    mic: "M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zM19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8",
+    dollar: "M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6",
+    lock: "M5 11h14v10H5zM7 11V7a5 5 0 0 1 10 0v4",
+    trend: "M23 6l-9.5 9.5-5-5L1 18M17 6h6v6",
+    rotate: "M3 12a9 9 0 1 0 9-9 9 9 0 0 0-6.4 2.6L3 8M3 3v5h5",
+    check: "M20 6L9 17l-5-5",
+  };
+  function svg(path, size, color, sw) {
+    return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex-shrink:0;"><path d="${path}"/></svg>`;
+  }
+  // Surgically replace placeholders without recreating the DOM (preserves animations)
+  function iconFor(name) {
+    if (name === 'check') return svg(ICONS.check, 10, 'var(--c-green-fg)', 3);
+    if (name === 'check_w') return svg(ICONS.check, 11, '#fff', 2.5);
+    if (name === 'rotate') return svg(ICONS.rotate, 13, 'currentColor', 1.7);
+    const sidebarIcons = ['search','bar','users'];
+    const size = sidebarIcons.includes(name) ? 16 : 22;
+    const sw = sidebarIcons.includes(name) ? 1.6 : 1.5;
+    return svg(ICONS[name] || '', size, 'currentColor', sw);
+  }
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+    acceptNode: (n) => /__IC_\w+?__/.test(n.nodeValue) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT
+  });
+  const targets = [];
+  while (walker.nextNode()) targets.push(walker.currentNode);
+  targets.forEach(node => {
+    const parent = node.parentElement;
+    if (parent && /^__IC_\w+?__$/.test(node.nodeValue.trim())) {
+      const name = node.nodeValue.trim().replace(/__IC_(\w+?)__/, '$1');
+      parent.innerHTML = iconFor(name);
+    }
+  });
+
+  // Scroll reveal
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.anim:not(.in)').forEach(el => io.observe(el));
+
+  // Score ring + dimension bars
+  function animateScore() {
+    const ring = document.getElementById('ring-fg');
+    const num = document.getElementById('ring-num');
+    if (ring) {
+      const C = 163.4, target = 92;
+      ring.style.strokeDashoffset = C - (C * target / 100);
+      let v = 0;
+      const t = setInterval(() => { v += 3; if (v >= target) { v = target; clearInterval(t); } num.textContent = v; }, 28);
+    }
+    document.querySelectorAll('.dim-fill').forEach(el => { el.style.width = el.dataset.val + '%'; });
+  }
+  const scoreCard = document.querySelector('.score-card');
+  if (scoreCard) {
+    const so = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { animateScore(); so.disconnect(); } });
+    }, { threshold: 0.4 });
+    so.observe(scoreCard);
+  }
+
+  // ── Calibrador interactivo (hero) ──
+  (function () {
+    const rowsEl = document.getElementById('cal-rows');
+    if (!rowsEl) return;
+    const DIMS = [
+      { key: 'skills', label: 'Skills técnicos', score: 92, w: 30, color: 'var(--c-blue-fg)' },
+      { key: 'exp',    label: 'Experiencia',    score: 88, w: 30, color: 'var(--c-purple-fg)' },
+      { key: 'sen',    label: 'Seniority',      score: 80, w: 20, color: 'var(--c-green-fg)' },
+      { key: 'snt',    label: 'Sentimiento',    score: 76, w: 20, color: 'var(--c-orange-fg)' },
+    ];
+    const DEFAULTS = DIMS.map(d => d.w);
+    const C = 201;
+
+    function tier(s) {
+      if (s >= 80) return { name: 'Fuerte',   col: 'var(--c-green-fg)' };
+      if (s >= 60) return { name: 'Sólido',   col: 'var(--c-blue-fg)' };
+      if (s >= 40) return { name: 'Limítrofe', col: 'var(--c-yellow-fg)' };
+      return { name: 'Débil', col: 'var(--c-red-fg)' };
+    }
+
+    rowsEl.innerHTML = DIMS.map((d, i) => `
+      <div class="cal-row">
+        <div class="cal-row-head">
+          <span class="cal-rl"><span class="cal-dot" style="background:${d.color}"></span>${d.label}</span>
+          <span class="cal-rv">eval ${d.score} · peso <b id="w-${d.key}">${d.w}%</b></span>
+        </div>
+        <input type="range" class="cal-slider" id="s-${i}" min="0" max="60" value="${d.w}" style="--c:${d.color}">
+      </div>`).join('');
+
+    const sliders = DIMS.map((d, i) => document.getElementById('s-' + i));
+    const numEl = document.getElementById('cal-num');
+    const tierEl = document.getElementById('cal-tier');
+    const arcEl = document.getElementById('cal-arc');
+
+    function fillTrack(sl) {
+      const pct = (sl.value / sl.max) * 100;
+      sl.style.backgroundSize = pct + '% 100%';
+    }
+
+    let displayed = 0;
+    function recompute(animateNum) {
+      const ws = sliders.map(s => +s.value);
+      const sum = ws.reduce((a, b) => a + b, 0) || 1;
+      const score = Math.round(DIMS.reduce((a, d, i) => a + d.score * ws[i], 0) / sum);
+      const t = tier(score);
+      // weight labels
+      DIMS.forEach((d, i) => {
+        const pctW = Math.round((ws[i] / sum) * 100);
+        document.getElementById('w-' + d.key).textContent = pctW + '%';
+        fillTrack(sliders[i]);
+      });
+      // ring
+      arcEl.style.strokeDashoffset = C - (C * score / 100);
+      arcEl.style.stroke = t.col;
+      numEl.style.color = t.col;
+      tierEl.style.color = t.col;
+      tierEl.textContent = t.name;
+      if (animateNum) {
+        const from = displayed, to = score, t0 = performance.now();
+        (function tick(now) {
+          const k = Math.min(1, (now - t0) / 450);
+          numEl.textContent = Math.round(from + (to - from) * k);
+          if (k < 1) requestAnimationFrame(tick); else displayed = to;
+        })(t0);
+      } else { numEl.textContent = score; displayed = score; }
+    }
+
+    sliders.forEach(s => { s.addEventListener('input', () => recompute(false)); fillTrack(s); });
+    document.getElementById('cal-reset').addEventListener('click', () => {
+      sliders.forEach((s, i) => s.value = DEFAULTS[i]);
+      recompute(true);
+    });
+
+    // initial reveal animation when in view
+    const co = new IntersectionObserver((e) => {
+      e.forEach(en => { if (en.isIntersecting) { recompute(true); co.disconnect(); } });
+    }, { threshold: 0.3 });
+    co.observe(document.getElementById('cal'));
+    recompute(false);
+  })();
+</script>
+</body>
+</html>
